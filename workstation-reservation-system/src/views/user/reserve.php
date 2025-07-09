@@ -82,73 +82,104 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['workstation_id'])) {
             position: relative;
             width: 650px;
             height: 550px;
-            background-color: #4a6e5c;
+            background: linear-gradient(135deg,rgb(239, 92, 143) 0%,rgb(1, 10, 51) 100%);
             border: 2px solid #eee;
             border-radius: 1rem;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            overflow: hidden;
+            transition: box-shadow 0.3s;
+        }
+        .lab-container:hover {
+            box-shadow: 0 16px 48px 0 rgba(31, 38, 135, 0.25);
         }
         .desk {
             position: absolute;
-            background: #ccc;
+            background: rgba(255,255,255,0.15);
             display: grid;
             grid-template-columns: repeat(4, 20px);
             grid-gap: 5px;
             padding: 5px;
-            border-radius: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(67, 233, 123, 0.08);
+            animation: fadeInDesk 0.8s;
+        }
+        @keyframes fadeInDesk {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .computer {
-            width: 20px;
-            height: 20px;
-            border-radius: 3px;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
-            transition: transform 0.3s;
+            font-size: 16px;
+            transition: transform 0.3s, box-shadow 0.3s, background 0.3s, border 0.3s;
             border: 2px solid transparent;
+            box-shadow: 0 2px 8px rgba(67, 233, 123, 0.12);
+            cursor: pointer;
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: #fff;
+            animation: popIn 0.6s;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            80% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
         }
         .computer.idle {
-            background: #2196f3;
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
             color: #fff;
-            cursor: pointer;
         }
         .computer.busy {
-            background: #43a047;
+            background: linear-gradient(135deg, #b2bec3 0%, #636e72 100%);
             color: #fff;
             cursor: not-allowed;
             opacity: 0.7;
         }
         .computer.selected {
             border: 2px solid #ff9800;
-            box-shadow: 0 0 8px #ff9800;
+            box-shadow: 0 0 16px #ff9800, 0 2px 8px rgba(67, 233, 123, 0.12);
+            animation: pulseSelected 1s infinite alternate;
+        }
+        @keyframes pulseSelected {
+            from { box-shadow: 0 0 16px #ff9800, 0 2px 8px rgba(67, 233, 123, 0.12); }
+            to { box-shadow: 0 0 32px #ff9800, 0 2px 16px rgba(67, 233, 123, 0.18); }
         }
         .computer:hover.idle {
-            transform: scale(1.2);
-            box-shadow: 0 0 5px white;
+            transform: scale(1.18) rotate(-3deg);
+            box-shadow: 0 0 12px #38f9d7, 0 2px 8px rgba(67, 233, 123, 0.18);
+            background: linear-gradient(135deg, #38f9d7 0%, #43e97b 100%);
         }
         .circle {
             position: absolute;
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: #ccc;
+            background: rgba(255,255,255,0.25);
             left: 300px;
             top: 20px;
+            box-shadow: 0 2px 8px rgba(67, 233, 123, 0.08);
         }
         .rectangle {
             position: absolute;
             width: 80px;
             height: 40px;
-            background: #ccc;
+            background: rgba(255,255,255,0.18);
             left: 400px;
             top: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(67, 233, 123, 0.08);
         }
         .divider {
             position: absolute;
             width: 5px;
             height: 60px;
-            background: #ccc;
+            background: rgba(255,255,255,0.18);
             right: 10px;
             top: 20px;
+            border-radius: 2px;
         }
         .desk.left1 { top: 10px; left: 10px; }
         .desk.left2 { top: 90px; left: 10px; }

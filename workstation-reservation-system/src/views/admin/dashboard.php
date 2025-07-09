@@ -45,6 +45,16 @@ usort($users, function($a, $b) {
     return strtotime($b['created_at']) - strtotime($a['created_at']);
 });
 $recentUsers = array_slice($users, 0, 5);
+
+$busyCount = 0;
+$idleCount = 0;
+foreach ($workstations as $ws) {
+    if (strtolower($ws['status']) === 'busy' || strtolower($ws['status']) === 'reserved') {
+        $busyCount++;
+    } else {
+        $idleCount++;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -55,17 +65,40 @@ $recentUsers = array_slice($users, 0, 5);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
-        html, body {
-            height: 100%;
+        :root {
+            --main-bg: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            --card-bg: #fff;
+            --text-color: #222;
+            --banner-bg: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+            --banner-text: #fff;
+            --primary: #4f8cff;
+            --success: #43cea2;
+            --warning: #ffd200;
+        }
+        body[data-theme='dark'] {
+            --main-bg: linear-gradient(135deg, #232526 0%, #414345 100%);
+            --card-bg: #23272f;
+            --text-color: #f1f1f1;
+            --banner-bg: linear-gradient(135deg, #232526 0%, #414345 100%);
+            --banner-text: #fff;
+            --primary: #90caf9;
+            --success: #43cea2;
+            --warning: #ffd200;
         }
         body {
             min-height: 100vh;
-            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            background: var(--main-bg);
+            color: var(--text-color);
         }
         .fade-in {
             opacity: 0;
             transform: translateY(30px);
             animation: fadeInUp 1s ease-out forwards;
+        }
+        .slide-in {
+            opacity: 0;
+            transform: translateX(-40px);
+            animation: slideIn 1s 0.2s cubic-bezier(.4,2,.6,1) forwards;
         }
         @keyframes fadeInUp {
             to {
@@ -73,13 +106,23 @@ $recentUsers = array_slice($users, 0, 5);
                 transform: none;
             }
         }
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
         .table-responsive { margin-top: 2rem; }
         .dashboard-main {
-            background: #f8f9fa;
+            background: var(--card-bg);
             border-radius: 1rem;
             box-shadow: 0 2px 16px rgba(79,140,255,0.08);
             padding: 2rem 2rem 1rem 2rem;
+            /* width: 100vw;
+            max-width: 100vw;
+            margin: 0; */
             min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
         }
         .sidebar {
             min-height: 100vh;
@@ -92,12 +135,57 @@ $recentUsers = array_slice($users, 0, 5);
         .card-equal .card-body {
             flex: 1 1 auto;
         }
+        .progress {
+            height: 18px;
+            background: #e0eafc;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(67,233,123,0.08);
+        }
+        .progress-bar {
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: width 1.2s cubic-bezier(.4,2,.6,1);
+        }
+        .welcome-banner {
+            background: var(--banner-bg);
+            color: var(--banner-text);
+            border-radius: 1rem;
+            box-shadow: 0 2px 16px rgba(67,233,123,0.08);
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            animation: fadeInUp 1s;
+        }
+        .welcome-banner .date {
+            font-size: 1.1em;
+            font-weight: 500;
+            opacity: 0.85;
+        }
+        .darkmode-toggle {
+            background: var(--banner-bg);
+            color: var(--banner-text);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            margin-left: 1rem;
+            transition: background 0.3s, color 0.3s;
+        }
         @media (max-width: 991.98px) {
-            .dashboard-main { padding: 1rem; }
+            .dashboard-main { padding: 1rem; max-width: 100vw; }
             .sidebar { min-height: auto; }
+            .welcome-banner { flex-direction: column; gap: 1rem; text-align: center; }
         }
         @media (max-width: 767.98px) {
-            .dashboard-main { padding: 0.5rem; }
+            .dashboard-main { padding: 0.5rem; border-radius: 0; }
         }
     </style>
 </head>
@@ -109,15 +197,24 @@ $recentUsers = array_slice($users, 0, 5);
                 <?php include __DIR__ . '/../layout/sidebar.php'; ?>
             </div>
             <main class="col-lg-9 dashboard-main fade-in">
-                <div class="row mb-4">
-                    <div class="col-12 text-center">
-                        <h1 class="mb-2"><i class="bi bi-speedometer2"></i> Admin Dashboard</h1>
-                        <p class="lead">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>! Manage the Jitume Lab system below.</p>
+                <div class="welcome-banner">
+                    <div>
+                        <h2 class="mb-1">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
+                        <div class="date"><i class="bi bi-calendar-event"></i> <?php echo date('l, F j, Y'); ?></div>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-end">
+                        <div>
+                            <span class="fs-5">System Quick Stats</span>
+                            <span class="badge bg-primary ms-2" title="Total Users"><i class="bi bi-people-fill"></i> <?php echo $userCount; ?></span>
+                            <span class="badge bg-success ms-2" title="Total Workstations"><i class="bi bi-pc-display-horizontal"></i> <?php echo $workstationCount; ?></span>
+                            <span class="badge bg-warning text-dark ms-2" title="Total Reservations"><i class="bi bi-calendar-check"></i> <?php echo $reservationCount; ?></span>
+                        </div>
+                        <button class="darkmode-toggle ms-3" id="darkmode-toggle" title="Toggle dark mode"><i class="bi bi-moon-stars"></i></button>
                     </div>
                 </div>
                 <div class="row g-4 mb-4">
-                    <div class="col-md-4">
-                        <div class="card shadow text-center border-0 card-equal" style="background: linear-gradient(135deg, #4f8cff 0%, #6dd5ed 100%); color: #fff;">
+                    <div class="col-md-4 slide-in">
+                        <div class="card shadow text-center border-0 card-equal" style="background: linear-gradient(135deg, #4f8cff 0%, #6dd5ed 100%); color: #fff;" data-bs-toggle="tooltip" data-bs-placement="top" title="Total registered users">
                             <div class="card-body">
                                 <i class="bi bi-people-fill display-5"></i>
                                 <h5 class="card-title mt-2">Users</h5>
@@ -125,17 +222,24 @@ $recentUsers = array_slice($users, 0, 5);
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="card shadow text-center border-0 card-equal" style="background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%); color: #fff;">
+                    <div class="col-md-4 slide-in">
+                        <div class="card shadow text-center border-0 card-equal" style="background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%); color: #fff;" data-bs-toggle="tooltip" data-bs-placement="top" title="Total workstations, busy and idle">
                             <div class="card-body">
                                 <i class="bi bi-pc-display-horizontal display-5"></i>
                                 <h5 class="card-title mt-2">Workstations</h5>
                                 <p class="card-text fs-4 fw-bold"><?php echo $workstationCount; ?></p>
+                                <div class="progress my-2" title="Busy/Idle Ratio">
+                                    <?php $busyPercent = $workstationCount > 0 ? round(($busyCount / $workstationCount) * 100) : 0; ?>
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: <?php echo $busyPercent; ?>%" aria-valuenow="<?php echo $busyPercent; ?>" aria-valuemin="0" aria-valuemax="100">Busy: <?php echo $busyCount; ?></div>
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo 100 - $busyPercent; ?>%" aria-valuenow="<?php echo 100 - $busyPercent; ?>" aria-valuemin="0" aria-valuemax="100">Idle: <?php echo $idleCount; ?></div>
+                                </div>
+                                <span class="badge bg-danger me-2" title="Busy workstations">Busy: <?php echo $busyCount; ?></span>
+                                <span class="badge bg-success" title="Idle workstations">Idle: <?php echo $idleCount; ?></span>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="card shadow text-center border-0 card-equal" style="background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); color: #333;">
+                    <div class="col-md-4 slide-in">
+                        <div class="card shadow text-center border-0 card-equal" style="background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); color: #333;" data-bs-toggle="tooltip" data-bs-placement="top" title="Total reservations in the system">
                             <div class="card-body">
                                 <i class="bi bi-calendar-check display-5"></i>
                                 <h5 class="card-title mt-2">Reservations</h5>
@@ -286,5 +390,30 @@ $recentUsers = array_slice($users, 0, 5);
             }
         });
     </script>
+    <script>
+// Enable Bootstrap tooltips
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl);
+});
+// Dark mode toggle
+const toggleBtn = document.getElementById('darkmode-toggle');
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+function setTheme(theme) {
+    document.body.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    toggleBtn.innerHTML = theme === 'dark' ? '<i class="bi bi-brightness-high"></i>' : '<i class="bi bi-moon-stars"></i>';
+}
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+    setTheme(savedTheme);
+} else if (prefersDark) {
+    setTheme('dark');
+}
+toggleBtn.addEventListener('click', function() {
+    const current = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    setTheme(current);
+});
+</script>
 </body>
 </html>

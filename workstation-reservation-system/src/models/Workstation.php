@@ -60,4 +60,12 @@ class Workstation {
         $stmt->bindParam(':id', $id);
         return $stmt->execute();
     }
+
+    public static function getWorkstationById($dbConnection, $id) {
+        $query = "SELECT * FROM workstations WHERE id = :id";
+        $stmt = $dbConnection->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }

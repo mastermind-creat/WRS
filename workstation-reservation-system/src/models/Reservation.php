@@ -85,4 +85,10 @@ class Reservation {
         $stmt->execute();
         return $stmt->fetchColumn() > 0;
     }
+
+    public function countPendingReservations() {
+        $query = "SELECT COUNT(*) FROM reservations WHERE status = 'pending'";
+        $stmt = $this->db->query($query);
+        return $stmt->fetchColumn();
+    }
 }

@@ -36,8 +36,16 @@ class ReportController
         $stmt->bindParam(':start_date', $startDate);
         $stmt->bindParam(':end_date', $endDate);
         $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Attach user names
+        require_once __DIR__ . '/../models/User.php';
+        $userModel = new User($this->db);
+        foreach ($results as &$row) {
+            $user = $userModel->getUserById($row['user_id']);
+            $row['username'] = $user ? $user['username'] : 'Unknown';
+        }
+        return $results;
     }
 
     public function generateWorkstationUsageReport($startDate, $endDate)
@@ -51,7 +59,14 @@ class ReportController
         $stmt->bindParam(':start_date', $startDate);
         $stmt->bindParam(':end_date', $endDate);
         $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Attach workstation names
+        require_once __DIR__ . '/../models/Workstation.php';
+        foreach ($results as &$row) {
+            $ws = Workstation::getWorkstationById($this->db, $row['workstation_id']);
+            $row['workstation_name'] = $ws ? $ws['name'] : 'Unknown';
+        }
+        return $results;
     }
 }

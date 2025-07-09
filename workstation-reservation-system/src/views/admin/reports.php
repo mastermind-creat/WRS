@@ -53,8 +53,9 @@ $workstationUsageReport = $reportController->generateWorkstationUsageReport($sta
                     <div class="card shadow">
                         <div class="card-body">
                             <h5 class="card-title"><i class="bi bi-calendar-range"></i> Reservations Per Day</h5>
+                            <button class="btn btn-outline-secondary btn-sm mb-2" onclick="exportTableToCSV('reservations-table', 'reservations_report.csv')"><i class="bi bi-download"></i> Export CSV</button>
                             <div class="table-responsive">
-                                <table class="table table-striped align-middle mb-0">
+                                <table class="table table-striped align-middle mb-0" id="reservations-table">
                                     <thead>
                                         <tr>
                                             <th>Date</th>
@@ -62,12 +63,16 @@ $workstationUsageReport = $reportController->generateWorkstationUsageReport($sta
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach ($reservationReport as $row): ?>
-                                            <tr>
-                                                <td><?php echo htmlspecialchars($row['date']); ?></td>
-                                                <td><?php echo htmlspecialchars($row['total_reservations']); ?></td>
-                                            </tr>
-                                        <?php endforeach; ?>
+                                        <?php if (empty($reservationReport)): ?>
+                                            <tr><td colspan="2" class="text-center">No reservations found for this period.</td></tr>
+                                        <?php else: ?>
+                                            <?php foreach ($reservationReport as $row): ?>
+                                                <tr>
+                                                    <td><?php echo htmlspecialchars($row['date']); ?></td>
+                                                    <td><?php echo htmlspecialchars($row['total_reservations']); ?></td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -78,21 +83,28 @@ $workstationUsageReport = $reportController->generateWorkstationUsageReport($sta
                     <div class="card shadow">
                         <div class="card-body">
                             <h5 class="card-title"><i class="bi bi-person-lines-fill"></i> User Activity</h5>
+                            <button class="btn btn-outline-secondary btn-sm mb-2" onclick="exportTableToCSV('user-activity-table', 'user_activity_report.csv')"><i class="bi bi-download"></i> Export CSV</button>
                             <div class="table-responsive">
-                                <table class="table table-striped align-middle mb-0">
+                                <table class="table table-striped align-middle mb-0" id="user-activity-table">
                                     <thead>
                                         <tr>
                                             <th>User ID</th>
+                                            <th>Username</th>
                                             <th>Activity Count</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach ($userActivityReport as $row): ?>
-                                            <tr>
-                                                <td><?php echo htmlspecialchars($row['user_id']); ?></td>
-                                                <td><?php echo htmlspecialchars($row['activity_count']); ?></td>
-                                            </tr>
-                                        <?php endforeach; ?>
+                                        <?php if (empty($userActivityReport)): ?>
+                                            <tr><td colspan="3" class="text-center">No user activity found for this period.</td></tr>
+                                        <?php else: ?>
+                                            <?php foreach ($userActivityReport as $row): ?>
+                                                <tr>
+                                                    <td><?php echo htmlspecialchars($row['user_id']); ?></td>
+                                                    <td><?php echo htmlspecialchars($row['username']); ?></td>
+                                                    <td><?php echo htmlspecialchars($row['activity_count']); ?></td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -105,21 +117,28 @@ $workstationUsageReport = $reportController->generateWorkstationUsageReport($sta
                     <div class="card shadow">
                         <div class="card-body">
                             <h5 class="card-title"><i class="bi bi-pc-display"></i> Workstation Usage</h5>
+                            <button class="btn btn-outline-secondary btn-sm mb-2" onclick="exportTableToCSV('workstation-usage-table', 'workstation_usage_report.csv')"><i class="bi bi-download"></i> Export CSV</button>
                             <div class="table-responsive">
-                                <table class="table table-striped align-middle mb-0">
+                                <table class="table table-striped align-middle mb-0" id="workstation-usage-table">
                                     <thead>
                                         <tr>
                                             <th>Workstation ID</th>
+                                            <th>Workstation Name</th>
                                             <th>Usage Count</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach ($workstationUsageReport as $row): ?>
-                                            <tr>
-                                                <td><?php echo htmlspecialchars($row['workstation_id']); ?></td>
-                                                <td><?php echo htmlspecialchars($row['usage_count']); ?></td>
-                                            </tr>
-                                        <?php endforeach; ?>
+                                        <?php if (empty($workstationUsageReport)): ?>
+                                            <tr><td colspan="3" class="text-center">No workstation usage found for this period.</td></tr>
+                                        <?php else: ?>
+                                            <?php foreach ($workstationUsageReport as $row): ?>
+                                                <tr>
+                                                    <td><?php echo htmlspecialchars($row['workstation_id']); ?></td>
+                                                    <td><?php echo htmlspecialchars($row['workstation_name']); ?></td>
+                                                    <td><?php echo htmlspecialchars($row['usage_count']); ?></td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -131,5 +150,31 @@ $workstationUsageReport = $reportController->generateWorkstationUsageReport($sta
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function exportTableToCSV(tableId, filename) {
+    const table = document.getElementById(tableId);
+    let csv = [];
+    for (let row of table.rows) {
+        let rowData = [];
+        for (let cell of row.cells) {
+            // Escape quotes and commas
+            let text = cell.innerText.replace(/"/g, '""');
+            if (text.indexOf(',') !== -1 || text.indexOf('"') !== -1) {
+                text = '"' + text + '"';
+            }
+            rowData.push(text);
+        }
+        csv.push(rowData.join(','));
+    }
+    const csvString = csv.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
 </body>
 </html>
