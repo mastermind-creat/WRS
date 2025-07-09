@@ -40,4 +40,9 @@ class ReservationController {
         $this->reservationModel->approveReservation($reservationId);
         return ['status' => 'success', 'message' => 'Reservation approved.'];
     }
+
+    public function rejectReservation($reservationId) {
+        $this->reservationModel->rejectReservation($reservationId);
+        return ['status' => 'success', 'message' => 'Reservation rejected.'];
+    }
 }

@@ -52,6 +52,13 @@ class Reservation {
         return true;
     }
 
+    public function rejectReservation($reservationId) {
+        $query = "UPDATE reservations SET status = 'rejected' WHERE id = :reservation_id";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':reservation_id', $reservationId);
+        return $stmt->execute();
+    }
+
     // Call this periodically or on page load to reset expired workstations to idle
     public function resetExpiredWorkstations() {
         $now = date('Y-m-d H:i:s');

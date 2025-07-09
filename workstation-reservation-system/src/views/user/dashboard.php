@@ -131,6 +131,7 @@ $userModel = new User($pdo);
 $reservationModel = new Reservation($pdo);
 $user = $userModel->getUserById($_SESSION['user_id']);
 $reservations = $reservationModel->getReservationsByUser($_SESSION['user_id']);
+$avatarUrl = !empty($user['avatar']) ? '/WRS/workstation-reservation-system/uploads/avatars/' . $user['avatar'] : 'https://ui-avatars.com/api/?name=' . urlencode($user['username']) . '&background=185a9d&color=fff&size=64';
 ?>
     <div class="dashboard-main fade-in">
         <div class="welcome-banner">
@@ -150,7 +151,7 @@ $reservations = $reservationModel->getReservationsByUser($_SESSION['user_id']);
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card border-0 shadow-sm p-3 d-flex flex-row align-items-center slide-in" style="background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%); color: #fff;" data-bs-toggle="tooltip" data-bs-placement="top" title="Your profile info">
-                    <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($user['username']); ?>&background=185a9d&color=fff&size=64" alt="Profile" class="rounded-circle me-3" style="width:64px;height:64px;box-shadow:0 2px 8px rgba(0,0,0,0.12);">
+                    <img src="<?php echo $avatarUrl; ?>" alt="Profile" class="rounded-circle me-3" style="width:64px;height:64px;box-shadow:0 2px 8px rgba(0,0,0,0.12);">
                     <div>
                         <h4 class="mb-0"><?php echo htmlspecialchars($user['username']); ?></h4>
                         <div class="small">Email: <?php echo htmlspecialchars($user['email']); ?></div>
@@ -176,6 +177,16 @@ $reservations = $reservationModel->getReservationsByUser($_SESSION['user_id']);
                         <div class="card-body">
                             <i class="bi bi-list-check display-5"></i>
                             <h5 class="card-title mt-2">My Reservations</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4 slide-in">
+                <a href="/WRS/workstation-reservation-system/src/views/user/profile.php" class="text-decoration-none" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit your profile details">
+                    <div class="card card-action text-center border-0 shadow h-100" style="background: linear-gradient(135deg, #185a9d 0%, #43cea2 100%); color: #fff;">
+                        <div class="card-body">
+                            <i class="bi bi-person-lines-fill display-5"></i>
+                            <h5 class="card-title mt-2">Edit Profile</h5>
                         </div>
                     </div>
                 </a>

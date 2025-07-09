@@ -86,6 +86,8 @@ $workstations = Workstation::getAllWorkstations($pdo);
                 </div>
                 <?php if (isset($_GET['msg']) && $_GET['msg'] === 'approved'): ?>
                     <div class="alert alert-success">Reservation approved successfully.</div>
+                <?php elseif (isset($_GET['msg']) && $_GET['msg'] === 'rejected'): ?>
+                    <div class="alert alert-danger">Reservation rejected successfully.</div>
                 <?php endif; ?>
                 <div class="card shadow card-equal mb-4">
                     <div class="card-body">
@@ -132,8 +134,8 @@ $workstations = Workstation::getAllWorkstations($pdo);
                                             <td>
                                                 <?php if ($reservation['status'] === 'pending'): ?>
                                                     <a href="approve.php?id=<?php echo $reservation['id']; ?>" class="btn btn-success btn-sm">Approve</a>
+                                                    <a href="reject.php?id=<?php echo $reservation['id']; ?>" class="btn btn-danger btn-sm">Reject</a>
                                                 <?php endif; ?>
-                                                <a href="cancel.php?id=<?php echo $reservation['id']; ?>" class="btn btn-danger btn-sm">Reject</a>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
