@@ -133,10 +133,21 @@ $user = $userModel->getUserById($_SESSION['user_id']);
 $reservations = $reservationModel->getReservationsByUser($_SESSION['user_id']);
 $avatarUrl = !empty($user['avatar']) ? '/WRS/workstation-reservation-system/uploads/avatars/' . $user['avatar'] : 'https://ui-avatars.com/api/?name=' . urlencode($user['username']) . '&background=185a9d&color=fff&size=64';
 ?>
+<?php
+// Find active reservation (approved, now between start and end)
+$now = date('Y-m-d H:i:s');
+$activeReservation = null;
+foreach ($reservations as $r) {
+    if ($r['status'] === 'approved' && $r['start_time'] <= $now && $r['end_time'] > $now) {
+        $activeReservation = $r;
+        break;
+    }
+}
+?>
     <div class="dashboard-main fade-in">
         <div class="welcome-banner">
             <div>
-                <h2 class="mb-1">Welcome, <?php echo htmlspecialchars($user['username']); ?>!</h2>
+                <h2 class="mb-1">Welcome, <?php echo htmlspecialchars($user['username']); ?>.</h2>
                 <div class="date"><i class="bi bi-calendar-event"></i> <?php echo date('l, F j, Y'); ?></div>
             </div>
             <div class="d-flex align-items-center justify-content-end">
@@ -202,6 +213,15 @@ $avatarUrl = !empty($user['avatar']) ? '/WRS/workstation-reservation-system/uplo
                 </a>
             </div>
         </div>
+        <?php if ($activeReservation): ?>
+            <div class="alert alert-info d-flex align-items-center" id="countdown-alert">
+                <i class="bi bi-clock-history me-2"></i>
+                <div>
+                    <strong>Active Reservation:</strong> Workstation <?php echo htmlspecialchars($activeReservation['workstation_id']); ?> <br>
+                    Time left: <span id="countdown-timer"></span>
+                </div>
+            </div>
+        <?php endif; ?>
         <div class="mt-4">
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body">
@@ -275,5 +295,39 @@ $avatarUrl = !empty($user['avatar']) ? '/WRS/workstation-reservation-system/uplo
             setTheme(current);
         });
     </script>
+    <?php if ($activeReservation): ?>
+        <script>
+        (function() {
+            // Set end time from PHP
+            var endTime = new Date("<?php echo $activeReservation['end_time']; ?>").getTime();
+            var notified = false;
+            function updateCountdown() {
+                var now = new Date().getTime();
+                var distance = endTime - now;
+                if (distance < 0) {
+                    document.getElementById('countdown-timer').textContent = 'Time is up!';
+                    document.getElementById('countdown-alert').classList.remove('alert-info');
+                    document.getElementById('countdown-alert').classList.add('alert-danger');
+                    return;
+                }
+                var hours = Math.floor((distance / (1000 * 60 * 60)));
+                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                document.getElementById('countdown-timer').textContent =
+                    (hours > 0 ? hours + 'h ' : '') + minutes + 'm ' + seconds + 's';
+                // Notify at 10 minutes left
+                if (!notified && distance <= 10 * 60 * 1000 && distance > 0) {
+                    notified = true;
+                    var alert = document.getElementById('countdown-alert');
+                    alert.classList.remove('alert-info');
+                    alert.classList.add('alert-warning');
+                    alert.innerHTML += '<div class="mt-2 fw-bold text-danger">Only 10 minutes left in your reservation!</div>';
+                }
+            }
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        })();
+        </script>
+    <?php endif; ?>
 </body>
 </html>

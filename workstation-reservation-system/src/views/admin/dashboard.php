@@ -64,130 +64,7 @@ foreach ($workstations as $ws) {
     <title>Admin Dashboard - Workstation Reservation System</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <style>
-        :root {
-            --main-bg: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
-            --card-bg: #fff;
-            --text-color: #222;
-            --banner-bg: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
-            --banner-text: #fff;
-            --primary: #4f8cff;
-            --success: #43cea2;
-            --warning: #ffd200;
-        }
-        body[data-theme='dark'] {
-            --main-bg: linear-gradient(135deg, #232526 0%, #414345 100%);
-            --card-bg: #23272f;
-            --text-color: #f1f1f1;
-            --banner-bg: linear-gradient(135deg, #232526 0%, #414345 100%);
-            --banner-text: #fff;
-            --primary: #90caf9;
-            --success: #43cea2;
-            --warning: #ffd200;
-        }
-        body {
-            min-height: 100vh;
-            background: var(--main-bg);
-            color: var(--text-color);
-        }
-        .fade-in {
-            opacity: 0;
-            transform: translateY(30px);
-            animation: fadeInUp 1s ease-out forwards;
-        }
-        .slide-in {
-            opacity: 0;
-            transform: translateX(-40px);
-            animation: slideIn 1s 0.2s cubic-bezier(.4,2,.6,1) forwards;
-        }
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: none;
-            }
-        }
-        @keyframes slideIn {
-            to {
-                opacity: 1;
-                transform: none;
-            }
-        }
-        .table-responsive { margin-top: 2rem; }
-        .dashboard-main {
-            background: var(--card-bg);
-            border-radius: 1rem;
-            box-shadow: 0 2px 16px rgba(79,140,255,0.08);
-            padding: 2rem 2rem 1rem 2rem;
-            /* width: 100vw;
-            max-width: 100vw;
-            margin: 0; */
-            min-height: 100vh;
-            transition: background 0.3s, color 0.3s;
-        }
-        .sidebar {
-            min-height: 100vh;
-        }
-        .card-equal {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-        .card-equal .card-body {
-            flex: 1 1 auto;
-        }
-        .progress {
-            height: 18px;
-            background: #e0eafc;
-            border-radius: 8px;
-            box-shadow: 0 1px 4px rgba(67,233,123,0.08);
-        }
-        .progress-bar {
-            font-weight: 600;
-            font-size: 0.95em;
-            transition: width 1.2s cubic-bezier(.4,2,.6,1);
-        }
-        .welcome-banner {
-            background: var(--banner-bg);
-            color: var(--banner-text);
-            border-radius: 1rem;
-            box-shadow: 0 2px 16px rgba(67,233,123,0.08);
-            padding: 1.5rem 2rem;
-            margin-bottom: 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            animation: fadeInUp 1s;
-        }
-        .welcome-banner .date {
-            font-size: 1.1em;
-            font-weight: 500;
-            opacity: 0.85;
-        }
-        .darkmode-toggle {
-            background: var(--banner-bg);
-            color: var(--banner-text);
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3em;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-            margin-left: 1rem;
-            transition: background 0.3s, color 0.3s;
-        }
-        @media (max-width: 991.98px) {
-            .dashboard-main { padding: 1rem; max-width: 100vw; }
-            .sidebar { min-height: auto; }
-            .welcome-banner { flex-direction: column; gap: 1rem; text-align: center; }
-        }
-        @media (max-width: 767.98px) {
-            .dashboard-main { padding: 0.5rem; border-radius: 0; }
-        }
-    </style>
+    <link rel="stylesheet" href="/WRS/workstation-reservation-system/src/public/css/admin.css">
 </head>
 <body>
 <?php include __DIR__ . '/../layout/navbar.php'; ?>
@@ -196,7 +73,7 @@ foreach ($workstations as $ws) {
             <div class="col-lg-3 p-0 sidebar">
                 <?php include __DIR__ . '/../layout/sidebar.php'; ?>
             </div>
-            <main class="col-lg-9 dashboard-main fade-in">
+            <main class="col-lg-9 dashboard-main fade-in" style="margin-top: 70px;">
                 <div class="welcome-banner">
                     <div>
                         <h2 class="mb-1">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
@@ -247,6 +124,7 @@ foreach ($workstations as $ws) {
                             </div>
                         </div>
                     </div>
+
                 </div>
                 <div class="row g-4 mb-4">
                     <div class="col-md-8">
@@ -258,14 +136,41 @@ foreach ($workstations as $ws) {
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <a href="/WRS/workstation-reservation-system/src/views/admin/reservations.php" class="text-decoration-none">
-                            <div class="card shadow h-100 text-center card-equal">
-                                <div class="card-body">
-                                    <i class="bi bi-list-check display-6 text-info"></i>
-                                    <h5 class="card-title mt-2">Manage Reservations</h5>
+                        <div class="card shadow h-100 text-center card-equal">
+                            <div class="card-body">
+                                <i class="bi bi-star-fill display-6 text-warning"></i>
+                                <h5 class="card-title mt-2">Most Active Users</h5>
+                                <div class="d-flex flex-column align-items-center mt-3">
+                                    <?php
+                                    // Count reservations per user
+                                    $userReservationCounts = [];
+                                    foreach ($reservations as $r) {
+                                        $uid = $r['user_id'];
+                                        if (!isset($userReservationCounts[$uid])) $userReservationCounts[$uid] = 0;
+                                        $userReservationCounts[$uid]++;
+                                    }
+                                    // Sort by reservation count desc
+                                    arsort($userReservationCounts);
+                                    $topUserIds = array_slice(array_keys($userReservationCounts), 0, 5);
+                                    // Map user id to user data
+                                    $userMap = [];
+                                    foreach ($users as $u) {
+                                        $userMap[$u['id']] = $u;
+                                    }
+                                    foreach ($topUserIds as $uid):
+                                        $u = $userMap[$uid] ?? null;
+                                        if (!$u) continue;
+                                        $avatarUrl = !empty($u['avatar']) ? '/WRS/workstation-reservation-system/uploads/avatars/' . $u['avatar'] : 'https://ui-avatars.com/api/?name=' . urlencode($u['username']) . '&background=185a9d&color=fff&size=64';
+                                    ?>
+                                    <div class="d-flex align-items-center mb-2 w-100">
+                                        <img src="<?php echo $avatarUrl; ?>" alt="Profile" class="rounded-circle me-2" style="width:40px;height:40px;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,0.10);">
+                                        <span class="fw-semibold text-truncate" style="max-width:120px;"> <?php echo htmlspecialchars($u['username']); ?> </span>
+                                        <span class="badge bg-light text-dark ms-auto"> <?php echo $userReservationCounts[$uid]; ?> </span>
+                                    </div>
+                                    <?php endforeach; ?>
                                 </div>
                             </div>
-                        </a>
+                        </div>
                         <a href="/WRS/workstation-reservation-system/src/views/admin/reports.php" class="text-decoration-none mt-3 d-block">
                             <div class="card shadow h-100 text-center card-equal">
                                 <div class="card-body">

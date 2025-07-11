@@ -40,13 +40,91 @@ foreach ($workstations as $ws) {
     $workstationMap[$ws['id']] = $ws;
 }
 $renderDesk = function($ids, $class) use ($workstationMap) {
-    echo '<div class="desk '.$class.'">';
+    static $popoverScripts = [];
+    echo '<div class="desk ' . $class . '">';
     foreach ($ids as $id) {
         $ws = isset($workstationMap[$id]) ? $workstationMap[$id] : null;
         $name = $ws ? htmlspecialchars($ws['name']) : 'N/A';
-        echo '<div class="computer idle" data-workstation-id="'.$id.'" title="'.$name.'"><i class="bi bi-pc-display"></i></div>';
+        $statusRaw = $ws && !empty($ws['status']) ? $ws['status'] : 'Available';
+        $statusList = array_map('trim', explode(',', $statusRaw));
+        $popoverContent = '<div style="min-width:160px;"><strong>' . $name . '</strong><br/><div class="d-flex flex-wrap gap-2 mt-2">';
+        foreach ($statusList as $status) {
+            $statusEsc = htmlspecialchars($status);
+            $iconClass = 'bi-question-circle'; // default icon
+            $badgeClass = 'bg-secondary';
+            
+            switch (strtolower($statusEsc)) {
+                case 'available':
+                    $iconClass = 'bi-check-circle';
+                    $badgeClass = 'bg-success';
+                    break;
+                case 'reserved':
+                    $iconClass = 'bi-calendar-check';
+                    $badgeClass = 'bg-primary';
+                    break;
+                case 'maintenance':
+                    $iconClass = 'bi-tools';
+                    $badgeClass = 'bg-warning text-dark';
+                    break;
+                case 'no network':
+                    $iconClass = 'bi-wifi-off';
+                    $badgeClass = 'bg-danger';
+                    break;
+                case 'not working':
+                    $iconClass = 'bi-exclamation-triangle';
+                    $badgeClass = 'bg-danger';
+                    break;
+                case 'busy':
+                    $iconClass = 'bi-person-fill';
+                    $badgeClass = 'bg-secondary';
+                    break;
+                case 'idle':
+                    $iconClass = 'bi-hourglass';
+                    $badgeClass = 'bg-light text-dark';
+                    break;
+                case 'cleaning':
+                    $iconClass = 'bi-bucket';
+                    $badgeClass = 'bg-info text-dark';
+                    break;
+                case 'software update':
+                    $iconClass = 'bi-download';
+                    $badgeClass = 'bg-primary';
+                    break;
+                case 'hardware issue':
+                    $iconClass = 'bi-cpu';
+                    $badgeClass = 'bg-danger';
+                    break;
+                case 'power issue':
+                    $iconClass = 'bi-plug';
+                    $badgeClass = 'bg-warning text-dark';
+                    break;
+                case 'in use':
+                    $iconClass = 'bi-person-check';
+                    $badgeClass = 'bg-success';
+                    break;
+                case 'offline':
+                    $iconClass = 'bi-power';
+                    $badgeClass = 'bg-secondary';
+                    break;
+            }
+            // Display icon with text below
+            $popoverContent .= '<div class="d-flex flex-column align-items-center">';
+            $popoverContent .= '<span class="badge ' . $badgeClass . ' mb-1"><i class="bi ' . $iconClass . '"></i></span>';
+            $popoverContent .= '<small class="text-muted text-center" style="font-size:0.65rem;line-height:1;">' . $statusEsc . '</small>';
+            $popoverContent .= '</div>';
+        }
+        $popoverContent .= '</div></div>';
+        $divId = 'ws-popover-' . $id;
+        echo '<div class="computer idle" data-workstation-id="' . $id . '" id="' . $divId . '" tabindex="0"><i class="bi bi-pc-display"></i></div>';
+        // Store raw HTML with proper escaping
+        $popoverScripts[] = 'window.wsPopovers = window.wsPopovers || {}; window.wsPopovers["' . $divId . '"] = `' . str_replace('`', '\`', $popoverContent) . '`;';
     }
     echo '</div>';
+    // Output the popover JS object at the end of the desks
+    if (!empty($popoverScripts)) {
+        echo '<script>' . implode("\n", $popoverScripts) . '</script>';
+        $popoverScripts = [];
+    }
 };
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['workstation_id'])) {
@@ -82,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['workstation_id'])) {
             position: relative;
             width: 650px;
             height: 550px;
-            background: linear-gradient(135deg,rgb(239, 92, 143) 0%,rgb(1, 10, 51) 100%);
+            background: linear-gradient(135deg,rgb(83, 131, 243) 0%,rgb(1, 10, 51) 100%);
             border: 2px solid #eee;
             border-radius: 1rem;
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
@@ -196,6 +274,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['workstation_id'])) {
         }
         @media (max-width: 991.98px) {
             .lab-container { margin-bottom: 2rem; }
+        }
+        /* Popover styling */
+        .popover {
+            max-width: 300px;
+        }
+        .popover-body {
+            padding: 0.5rem 0.75rem;
+        }
+        /* Status item styling */
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0.2rem;
+            width: 60px;
+        }
+        .status-badge {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2px;
+        }
+        .status-text {
+            font-size: 0.65rem;
+            line-height: 1;
+            text-align: center;
+            word-break: break-word;
+            max-width: 100%;
         }
     </style>
 </head>
@@ -354,6 +462,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['workstation_id'])) {
       .lab-container { padding: 16px; }
     `;
     document.head.appendChild(style);
+    </script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.wsPopovers) {
+        Object.keys(window.wsPopovers).forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) {
+                new bootstrap.Popover(el, {
+                    trigger: 'hover focus',
+                    placement: 'top',
+                    container: 'body',
+                    html: true,
+                    sanitize: false,
+                    content: window.wsPopovers[id]
+                });
+            }
+        });
+    }
+});
     </script>
 </body>
 </html>

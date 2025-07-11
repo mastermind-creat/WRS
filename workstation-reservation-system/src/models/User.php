@@ -48,4 +48,33 @@ class User {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function getUserByUsername($username) {
+        $stmt = $this->db->prepare("SELECT * FROM " . $this->table . " WHERE username = :username");
+        $stmt->bindParam(':username', $username);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function updateRole($userId, $role) {
+        $stmt = $this->db->prepare("UPDATE " . $this->table . " SET role = :role WHERE id = :id");
+        $stmt->bindParam(':role', $role);
+        $stmt->bindParam(':id', $userId);
+        return $stmt->execute();
+    }
+
+    public function updateUser($userId, $username, $email, $role) {
+        $stmt = $this->db->prepare("UPDATE " . $this->table . " SET username = :username, email = :email, role = :role WHERE id = :id");
+        $stmt->bindParam(':username', $username);
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':role', $role);
+        $stmt->bindParam(':id', $userId);
+        return $stmt->execute();
+    }
+
+    public function delete($userId) {
+        $stmt = $this->db->prepare("DELETE FROM " . $this->table . " WHERE id = :id");
+        $stmt->bindParam(':id', $userId);
+        return $stmt->execute();
+    }
 }

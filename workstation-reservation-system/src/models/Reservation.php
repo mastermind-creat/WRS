@@ -53,19 +53,37 @@ class Reservation {
     }
 
     public function rejectReservation($reservationId) {
-        $query = "UPDATE reservations SET status = 'rejected' WHERE id = :reservation_id";
+        $query = "UPDATE reservations SET status = 'canceled' WHERE id = :reservation_id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':reservation_id', $reservationId);
+        return $stmt->execute();
+    }
+
+    public function restoreReservation($reservationId) {
+        $query = "UPDATE reservations SET status = 'pending' WHERE id = :reservation_id AND status = 'canceled'";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':reservation_id', $reservationId);
+        return $stmt->execute();
+    }
+
+    public function updateReservationStatus($reservationId, $status) {
+        $query = "UPDATE reservations SET status = :status WHERE id = :id";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':status', $status);
+        $stmt->bindParam(':id', $reservationId);
         return $stmt->execute();
     }
 
     // Call this periodically or on page load to reset expired workstations to idle
     public function resetExpiredWorkstations() {
         $now = date('Y-m-d H:i:s');
-        // Find workstations with all reservations ended
-        $query = "UPDATE workstations w SET w.status = 'idle' WHERE w.id NOT IN (
-            SELECT workstation_id FROM reservations WHERE status = 'approved' AND end_time > :now
-        )";
+        // Only set to Available if status is Reserved or Busy and not containing admin-set statuses
+        $query = "UPDATE workstations w SET w.status = 'Available' 
+                  WHERE (
+                    w.status = 'Reserved' OR w.status = 'Busy'
+                  ) AND w.id NOT IN (
+                    SELECT workstation_id FROM reservations WHERE status = 'approved' AND end_time > :now
+                  )";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':now', $now);
         $stmt->execute();

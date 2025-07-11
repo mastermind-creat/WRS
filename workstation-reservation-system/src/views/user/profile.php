@@ -10,7 +10,7 @@ $userModel = new User($pdo);
 $user = $userModel->getUserById($_SESSION['user_id']);
 $message = '';
 $error = '';
-$avatarUrl = !empty($user['avatar']) ? '/WRS/uploads/avatars/' . $user['avatar'] : 'https://ui-avatars.com/api/?name=' . urlencode($user['username']) . '&background=185a9d&color=fff&size=80';
+$avatarUrl = !empty($user['avatar']) ? '/WRS/workstation-reservation-system/uploads/avatars/' . $user['avatar'] : 'https://ui-avatars.com/api/?name=' . urlencode($user['username']) . '&background=185a9d&color=fff&size=80';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $newUsername = trim($_POST['username']);
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $message = 'Profile updated successfully!';
                 $_SESSION['username'] = $newUsername;
                 $user = $userModel->getUserById($_SESSION['user_id']);
-                $avatarUrl = !empty($user['avatar']) ? '/WRS/uploads/avatars/' . $user['avatar'] : 'https://ui-avatars.com/api/?name=' . urlencode($user['username']) . '&background=185a9d&color=fff&size=80';
+                $avatarUrl = !empty($user['avatar']) ? '/WRS/workstation-reservation-system/uploads/avatars/' . $user['avatar'] : 'https://ui-avatars.com/api/?name=' . urlencode($user['username']) . '&background=185a9d&color=fff&size=80';
             } else {
                 $error = 'Failed to update profile.';
             }

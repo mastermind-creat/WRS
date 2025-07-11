@@ -26,36 +26,32 @@ $workstationUsageReport = $reportController->generateWorkstationUsageReport($sta
     <title>Admin Reports</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <style>
-        body { background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); }
-        .dashboard-main { background: #fff; border-radius: 1rem; box-shadow: 0 2px 16px rgba(79,140,255,0.08); padding: 2rem 2rem 1rem 2rem; min-height: 90vh; }
-        @media (max-width: 991.98px) { .dashboard-main { padding: 1rem; } }
-    </style>
+    <link rel="stylesheet" href="/WRS/workstation-reservation-system/src/public/css/admin.css">
 </head>
 <body>
 <?php include __DIR__ . '/../layout/navbar.php'; ?>
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-lg-3 p-0">
+    <div class="row flex-nowrap">
+        <div class="col-lg-3 p-0 sidebar">
             <?php include __DIR__ . '/../layout/sidebar.php'; ?>
         </div>
-        <main class="col-lg-9 dashboard-main">
+        <main class="col-lg-9 dashboard-main fade-in" style="margin-top: 10px;">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2><i class="bi bi-bar-chart-line"></i> Reports</h2>
-                <form class="d-flex gap-2" method="get">
+                <h2 class="mb-0"><i class="bi bi-bar-chart-line"></i> Reports</h2>
+                <form class="d-flex gap-2 align-items-center" method="get">
                     <input type="date" name="start_date" class="form-control" value="<?php echo htmlspecialchars($startDate); ?>">
                     <input type="date" name="end_date" class="form-control" value="<?php echo htmlspecialchars($endDate); ?>">
                     <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> Filter</button>
                 </form>
             </div>
             <div class="row g-4 mb-4">
-                <div class="col-lg-6">
-                    <div class="card shadow">
+                <div class="col-lg-6 slide-in">
+                    <div class="card shadow card-equal">
                         <div class="card-body">
                             <h5 class="card-title"><i class="bi bi-calendar-range"></i> Reservations Per Day</h5>
                             <button class="btn btn-outline-secondary btn-sm mb-2" onclick="exportTableToCSV('reservations-table', 'reservations_report.csv')"><i class="bi bi-download"></i> Export CSV</button>
                             <div class="table-responsive">
-                                <table class="table table-striped align-middle mb-0" id="reservations-table">
+                                <table class="table table-striped table-hover align-middle mb-0" id="reservations-table">
                                     <thead>
                                         <tr>
                                             <th>Date</th>
@@ -79,13 +75,13 @@ $workstationUsageReport = $reportController->generateWorkstationUsageReport($sta
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6">
-                    <div class="card shadow">
+                <div class="col-lg-6 slide-in">
+                    <div class="card shadow card-equal">
                         <div class="card-body">
                             <h5 class="card-title"><i class="bi bi-person-lines-fill"></i> User Activity</h5>
                             <button class="btn btn-outline-secondary btn-sm mb-2" onclick="exportTableToCSV('user-activity-table', 'user_activity_report.csv')"><i class="bi bi-download"></i> Export CSV</button>
                             <div class="table-responsive">
-                                <table class="table table-striped align-middle mb-0" id="user-activity-table">
+                                <table class="table table-striped table-hover align-middle mb-0" id="user-activity-table">
                                     <thead>
                                         <tr>
                                             <th>User ID</th>
@@ -112,14 +108,14 @@ $workstationUsageReport = $reportController->generateWorkstationUsageReport($sta
                     </div>
                 </div>
             </div>
-            <div class="row g-4">
-                <div class="col-12">
-                    <div class="card shadow">
+            <div class="row g-4 mt-2">
+                <div class="col-12 slide-in">
+                    <div class="card shadow card-equal">
                         <div class="card-body">
                             <h5 class="card-title"><i class="bi bi-pc-display"></i> Workstation Usage</h5>
                             <button class="btn btn-outline-secondary btn-sm mb-2" onclick="exportTableToCSV('workstation-usage-table', 'workstation_usage_report.csv')"><i class="bi bi-download"></i> Export CSV</button>
                             <div class="table-responsive">
-                                <table class="table table-striped align-middle mb-0" id="workstation-usage-table">
+                                <table class="table table-striped table-hover align-middle mb-0" id="workstation-usage-table">
                                     <thead>
                                         <tr>
                                             <th>Workstation ID</th>

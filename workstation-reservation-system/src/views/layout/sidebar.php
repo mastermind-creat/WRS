@@ -33,6 +33,11 @@ function isActiveSidebar($path) {
             </a>
         </li>
         <li>
+            <a href="/WRS/workstation-reservation-system/src/views/admin/workstations.php" class="nav-link text-white <?php echo isActiveSidebar('workstations.php'); ?>">
+                <i class="bi bi-pc-display me-2"></i> Manage Workstations
+            </a>
+        </li>
+        <li>
             <a href="/WRS/workstation-reservation-system/src/views/auth/logout.php" class="nav-link text-white">
                 <i class="bi bi-box-arrow-right me-2"></i> Logout
             </a>
@@ -46,20 +51,49 @@ function isActiveSidebar($path) {
     background: linear-gradient(90deg, #4f8cff 0%, #6dd5ed 100%);
     color: #fff !important;
 }
+
+/* Main content adjustments */
+.dashboard-main {
+    margin-left: -240px; /* Match sidebar width */
+    padding: 20px;
+    width: calc(100% - 240px);
+}
+
+/* Remove default body padding */
+body {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+}
+
+/* Responsive adjustments */
 @media (max-width: 991.98px) {
     .sidebar {
-        /* position: static !important; */
         width: 100% !important;
-        /* height: auto !important; */
-        min-height: auto;
+        position: relative !important;
+        height: auto !important;
+    }
+    
+    .dashboard-main {
+        margin-left: 0;
+        width: 100%;
     }
 }
-/* body {
-    padding-left: 2px;
+
+/* Optional: If you want to remove the slight gap at the top */
+.sidebar {
+    top: 0 !important;
+    padding-top: 0 !important;
 }
-@media (max-width: 991.98px) {
-    body {
-        padding-left: 0;
-    }
-} */
-</style> 
+
+/* Remove any default margins from the main container */
+.container-fluid {
+    padding-left: 0;
+    margin-left: 0;
+}
+
+/* Ensure the row has no margin */
+.row.flex-nowrap {
+    margin-left: 0;
+    margin-right: 0;
+}
+</style>

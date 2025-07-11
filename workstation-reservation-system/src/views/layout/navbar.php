@@ -1,7 +1,8 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+// Remove session_start() from here to avoid 'headers already sent' warnings
+// if (session_status() === PHP_SESSION_NONE) {
+//     session_start();
+// }
 $current = $_SERVER['REQUEST_URI'];
 function isActive($path) {
     global $current;
@@ -17,7 +18,7 @@ if ($isLoggedIn && $role === 'admin') {
     $pendingCount = $reservationModel->countPendingReservations();
 }
 ?>
-<nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background: rgba(33, 37, 41, 0.95) !important;">
+<nav class="navbar navbar-expand-lg navbar-dark shadow-sm  mb-4" style="background: rgba(33, 37, 41, 0.95) !important;">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="/WRS/workstation-reservation-system/src/views/landing.php">
             <i class="bi bi-pc-display me-2"></i> Jitume Lab
