@@ -11,6 +11,24 @@ function isActive($path) {
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 $isLoggedIn = isset($_SESSION['user_id']);
 
+// Fetch user info for avatar if logged in
+$userAvatarUrl = null;
+$userName = null;
+if ($isLoggedIn) {
+    require_once __DIR__ . '/../../config/database.php';
+    require_once __DIR__ . '/../../models/User.php';
+    $userModel = new User($pdo);
+    $user = $userModel->getUserById($_SESSION['user_id']);
+    if ($user) {
+        $userName = $user['username'];
+        if (!empty($user['avatar'])) {
+            $userAvatarUrl = '/WRS/workstation-reservation-system/uploads/avatars/' . $user['avatar'];
+        } else {
+            $userAvatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($user['username']) . '&background=185a9d&color=fff&size=64';
+        }
+    }
+}
+
 if ($isLoggedIn && $role === 'admin') {
     require_once __DIR__ . '/../../config/database.php';
     require_once __DIR__ . '/../../models/Reservation.php';
@@ -75,6 +93,15 @@ if ($isLoggedIn && $role === 'admin') {
                     </li>
                 <?php endif; ?>
             </ul>
+            <?php if ($isLoggedIn && $userAvatarUrl): ?>
+                <div class="d-flex align-items-center ms-3">
+                    <img src="<?php echo $userAvatarUrl; ?>" alt="Profile" class="rounded-circle avatar" style="width:38px;height:38px;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,0.10);" title="<?php echo htmlspecialchars($userName); ?>">
+                </div>
+            <?php endif; ?>
+            <!-- Theme toggler button -->
+            <button class="btn btn-outline-light ms-3" id="navbar-theme-toggle" type="button" title="Toggle dark mode" style="border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:1.3em;">
+                <i class="bi bi-moon-stars" id="navbar-theme-icon"></i>
+            </button>
         </div>
     </div>
 </nav>
@@ -83,4 +110,28 @@ if ($isLoggedIn && $role === 'admin') {
     from { box-shadow: 0 0 0 0 #dc3545; }
     to { box-shadow: 0 0 8px 2px #dc3545; }
 }
-</style> 
+</style>
+<script>
+(function() {
+    var toggleBtn = document.getElementById('navbar-theme-toggle');
+    var icon = document.getElementById('navbar-theme-icon');
+    if (toggleBtn && icon) {
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        function setTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            icon.className = theme === 'dark' ? 'bi bi-brightness-high' : 'bi bi-moon-stars';
+        }
+        var savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            setTheme(savedTheme);
+        } else if (prefersDark) {
+            setTheme('dark');
+        }
+        toggleBtn.addEventListener('click', function() {
+            var current = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            setTheme(current);
+        });
+    }
+})();
+</script> 

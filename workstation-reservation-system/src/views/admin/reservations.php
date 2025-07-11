@@ -6,6 +6,7 @@ require_once '../../models/Workstation.php';
 require_once '../../controllers/ReservationController.php';
 
 $reservationModel = new Reservation($pdo);
+$reservationModel->resetExpiredWorkstations();
 $workstationModel = new Workstation(null, null, null, null); // Not used for static methods, but required by controller
 $reservationController = new ReservationController($reservationModel, $workstationModel);
 
@@ -24,6 +25,11 @@ if ($dateFilter) {
         return strpos($r['start_time'], $dateFilter) === 0;
     });
 }
+
+// After filtering by date, sort reservations by start_time descending (most recent first)
+usort($reservations, function($a, $b) {
+    return strtotime($b['start_time']) - strtotime($a['start_time']);
+});
 ?>
 <!DOCTYPE html>
 <html lang="en">

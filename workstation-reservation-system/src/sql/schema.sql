@@ -1,0 +1,1 @@
+ALTER TABLE reservations ADD COLUMN approved_at DATETIME NULL AFTER status; 

@@ -39,8 +39,8 @@ class Reservation {
     }
 
     public function approveReservation($reservationId) {
-        // Approve reservation
-        $query = "UPDATE reservations SET status = 'approved' WHERE id = :reservation_id";
+        // Approve reservation and set approved_at
+        $query = "UPDATE reservations SET status = 'approved', approved_at = NOW() WHERE id = :reservation_id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':reservation_id', $reservationId);
         $stmt->execute();
@@ -77,10 +77,10 @@ class Reservation {
     // Call this periodically or on page load to reset expired workstations to idle
     public function resetExpiredWorkstations() {
         $now = date('Y-m-d H:i:s');
-        // Only set to Available if status is Reserved or Busy and not containing admin-set statuses
-        $query = "UPDATE workstations w SET w.status = 'Available' 
+        // Only set to idle if status is reserved or busy and not containing admin-set statuses
+        $query = "UPDATE workstations w SET w.status = 'idle' 
                   WHERE (
-                    w.status = 'Reserved' OR w.status = 'Busy'
+                    w.status = 'reserved' OR w.status = 'busy'
                   ) AND w.id NOT IN (
                     SELECT workstation_id FROM reservations WHERE status = 'approved' AND end_time > :now
                   )";

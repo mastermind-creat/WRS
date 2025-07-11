@@ -46,6 +46,21 @@ usort($users, function($a, $b) {
 });
 $recentUsers = array_slice($users, 0, 5);
 
+// Pagination for Recent Reservations
+$resPerPage = 5;
+$resPage = isset($_GET['res_page']) ? max(1, intval($_GET['res_page'])) : 1;
+$resTotal = count($recentReservations);
+$resPages = max(1, ceil($resTotal / $resPerPage));
+$resStart = ($resPage - 1) * $resPerPage;
+$resPaginated = array_slice($recentReservations, $resStart, $resPerPage);
+// Pagination for Recent Users
+$userPerPage = 5;
+$userPage = isset($_GET['user_page']) ? max(1, intval($_GET['user_page'])) : 1;
+$userTotal = count($recentUsers);
+$userPages = max(1, ceil($userTotal / $userPerPage));
+$userStart = ($userPage - 1) * $userPerPage;
+$userPaginated = array_slice($recentUsers, $userStart, $userPerPage);
+
 $busyCount = 0;
 $idleCount = 0;
 foreach ($workstations as $ws) {
@@ -53,6 +68,21 @@ foreach ($workstations as $ws) {
         $busyCount++;
     } else {
         $idleCount++;
+    }
+}
+
+// Fetch admin avatar and name for welcome banner
+$adminAvatarUrl = null;
+$adminName = null;
+if (isset($_SESSION['user_id'])) {
+    $admin = $userModel->getUserById($_SESSION['user_id']);
+    if ($admin) {
+        $adminName = $admin['username'];
+        if (!empty($admin['avatar'])) {
+            $adminAvatarUrl = '/WRS/workstation-reservation-system/uploads/avatars/' . $admin['avatar'];
+        } else {
+            $adminAvatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($admin['username']) . '&background=185a9d&color=fff&size=64';
+        }
     }
 }
 ?>
@@ -73,11 +103,14 @@ foreach ($workstations as $ws) {
             <div class="col-lg-3 p-0 sidebar">
                 <?php include __DIR__ . '/../layout/sidebar.php'; ?>
             </div>
-            <main class="col-lg-9 dashboard-main fade-in" style="margin-top: 70px;">
-                <div class="welcome-banner">
-                    <div>
-                        <h2 class="mb-1">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
-                        <div class="date"><i class="bi bi-calendar-event"></i> <?php echo date('l, F j, Y'); ?></div>
+            <main class="col-lg-9 dashboard-main fade-in" >
+                <div class="welcome-banner d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <img src="<?php echo $adminAvatarUrl; ?>" alt="Admin Avatar" class="rounded-circle me-3" style="width:64px;height:64px;box-shadow:0 2px 8px rgba(0,0,0,0.12);">
+                        <div>
+                            <h2 class="mb-1">Welcome, <?php echo htmlspecialchars($adminName); ?>.</h2>
+                            <div class="date"><i class="bi bi-calendar-event"></i> <?php echo date('l, F j, Y'); ?></div>
+                        </div>
                     </div>
                     <div class="d-flex align-items-center justify-content-end">
                         <div>
@@ -86,12 +119,11 @@ foreach ($workstations as $ws) {
                             <span class="badge bg-success ms-2" title="Total Workstations"><i class="bi bi-pc-display-horizontal"></i> <?php echo $workstationCount; ?></span>
                             <span class="badge bg-warning text-dark ms-2" title="Total Reservations"><i class="bi bi-calendar-check"></i> <?php echo $reservationCount; ?></span>
                         </div>
-                        <button class="darkmode-toggle ms-3" id="darkmode-toggle" title="Toggle dark mode"><i class="bi bi-moon-stars"></i></button>
                     </div>
                 </div>
                 <div class="row g-4 mb-4">
                     <div class="col-md-4 slide-in">
-                        <div class="card shadow text-center border-0 card-equal" style="background: linear-gradient(135deg, #4f8cff 0%, #6dd5ed 100%); color: #fff;" data-bs-toggle="tooltip" data-bs-placement="top" title="Total registered users">
+                        <div class="card shadow text-center border-0 card-equal card-action" style="background: linear-gradient(135deg, #4f8cff 0%, #6dd5ed 100%); color: #fff;">
                             <div class="card-body">
                                 <i class="bi bi-people-fill display-5"></i>
                                 <h5 class="card-title mt-2">Users</h5>
@@ -100,7 +132,7 @@ foreach ($workstations as $ws) {
                         </div>
                     </div>
                     <div class="col-md-4 slide-in">
-                        <div class="card shadow text-center border-0 card-equal" style="background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%); color: #fff;" data-bs-toggle="tooltip" data-bs-placement="top" title="Total workstations, busy and idle">
+                        <div class="card shadow text-center border-0 card-equal card-action" style="background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%); color: #fff;">
                             <div class="card-body">
                                 <i class="bi bi-pc-display-horizontal display-5"></i>
                                 <h5 class="card-title mt-2">Workstations</h5>
@@ -116,7 +148,7 @@ foreach ($workstations as $ws) {
                         </div>
                     </div>
                     <div class="col-md-4 slide-in">
-                        <div class="card shadow text-center border-0 card-equal" style="background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); color: #333;" data-bs-toggle="tooltip" data-bs-placement="top" title="Total reservations in the system">
+                        <div class="card shadow text-center border-0 card-equal card-action" style="background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); color: #333;">
                             <div class="card-body">
                                 <i class="bi bi-calendar-check display-5"></i>
                                 <h5 class="card-title mt-2">Reservations</h5>
@@ -124,20 +156,62 @@ foreach ($workstations as $ws) {
                             </div>
                         </div>
                     </div>
-
+                </div>
+                <!-- Quick Action Cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3 slide-in">
+                        <a href="/WRS/workstation-reservation-system/src/views/admin/users.php" class="text-decoration-none">
+                            <div class="card card-action text-center border-0 shadow h-100" style="background: linear-gradient(135deg, #4f8cff 0%, #6dd5ed 100%); color: #fff;">
+                                <div class="card-body">
+                                    <i class="bi bi-people display-5"></i>
+                                    <h5 class="card-title mt-2">Manage Users</h5>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 slide-in">
+                        <a href="/WRS/workstation-reservation-system/src/views/admin/workstations.php" class="text-decoration-none">
+                            <div class="card card-action text-center border-0 shadow h-100" style="background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%); color: #fff;">
+                                <div class="card-body">
+                                    <i class="bi bi-pc-display display-5"></i>
+                                    <h5 class="card-title mt-2">Manage Workstations</h5>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 slide-in">
+                        <a href="/WRS/workstation-reservation-system/src/views/admin/reports.php" class="text-decoration-none">
+                            <div class="card card-action text-center border-0 shadow h-100" style="background: linear-gradient(135deg, #ffb347 0%, #ffcc33 100%); color: #333;">
+                                <div class="card-body">
+                                    <i class="bi bi-bar-chart-line display-5"></i>
+                                    <h5 class="card-title mt-2">View Reports</h5>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 slide-in">
+                        <a href="/WRS/workstation-reservation-system/src/views/admin/dashboard.php" class="text-decoration-none">
+                            <div class="card card-action text-center border-0 shadow h-100" style="background: linear-gradient(135deg, #e96443 0%, #904e95 100%); color: #fff;">
+                                <div class="card-body">
+                                    <i class="bi bi-plus-circle display-5"></i>
+                                    <h5 class="card-title mt-2">Add Workstation</h5>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
                 </div>
                 <div class="row g-4 mb-4">
                     <div class="col-md-8">
-                        <div class="card shadow h-100 card-equal">
-                            <div class="card-body">
+                        <div class="card shadow h-100 card-equal" style="min-height:290px; max-height:300px;">
+                            <div class="card-body d-flex flex-column justify-content-center align-items-center" style="height: 100%; min-height:280px; max-height:300px;">
                                 <h5 class="card-title"><i class="bi bi-graph-up"></i> Reservations (Last 7 Days)</h5>
-                                <canvas id="reservationsChart" height="100"></canvas>
+                                <canvas id="reservationsChart" height="60" style="max-width:100%;max-height:120px;"></canvas>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="card shadow h-100 text-center card-equal">
-                            <div class="card-body">
+                        <div class="card shadow h-100 text-center card-equal" style="min-height:290px; max-height:300px;">
+                            <div class="card-body d-flex flex-column justify-content-center align-items-center" style="height: 100%; min-height:280px; max-height:300px;">
                                 <i class="bi bi-star-fill display-6 text-warning"></i>
                                 <h5 class="card-title mt-2">Most Active Users</h5>
                                 <div class="d-flex flex-column align-items-center mt-3">
@@ -171,31 +245,15 @@ foreach ($workstations as $ws) {
                                 </div>
                             </div>
                         </div>
-                        <a href="/WRS/workstation-reservation-system/src/views/admin/reports.php" class="text-decoration-none mt-3 d-block">
-                            <div class="card shadow h-100 text-center card-equal">
-                                <div class="card-body">
-                                    <i class="bi bi-bar-chart-line display-6 text-secondary"></i>
-                                    <h5 class="card-title mt-2">View Reports</h5>
-                                </div>
-                            </div>
-                        </a>
-                        <a href="/WRS/workstation-reservation-system/src/views/auth/logout.php" class="text-decoration-none mt-3 d-block">
-                            <div class="card shadow h-100 text-center card-equal">
-                                <div class="card-body">
-                                    <i class="bi bi-box-arrow-right display-6 text-danger"></i>
-                                    <h5 class="card-title mt-2">Logout</h5>
-                                </div>
-                            </div>
-                        </a>
                     </div>
                 </div>
                 <div class="row g-4 mt-4">
-                    <div class="col-8 mb-4">
-                        <div class="card shadow card-equal">
-                            <div class="card-body">
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow card-equal" style="min-height: 320px; max-width: 100%;">
+                            <div class="card-body p-3">
                                 <h5 class="card-title"><i class="bi bi-clock-history"></i> Recent Reservations</h5>
-                                <div class="table-responsive">
-                                    <table class="table table-striped align-middle mb-0">
+                                <div class="table-responsive" style="max-height: 260px; overflow-y: auto;">
+                                    <table class="table table-striped align-middle mb-0 table-sm">
                                         <thead>
                                             <tr>
                                                 <th>User</th>
@@ -207,56 +265,85 @@ foreach ($workstations as $ws) {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php foreach (
-                                                $recentReservations as $r): ?>
-                                                <tr>
-                                                    <td><?php echo htmlspecialchars($r['user_id']); ?></td>
-                                                    <td><?php echo htmlspecialchars($r['workstation_id']); ?></td>
-                                                    <td><?php echo date('M d, H:i', strtotime($r['start_time'])); ?></td>
-                                                    <td><?php echo date('M d, H:i', strtotime($r['end_time'])); ?></td>
-                                                    <td>
-                                                        <span class="badge bg-<?php echo $r['status'] === 'approved' ? 'success' : ($r['status'] === 'pending' ? 'warning text-dark' : 'danger'); ?>">
-                                                            <?php echo ucfirst($r['status']); ?>
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <?php if ($r['status'] === 'pending'): ?>
-                                                            <a href="/WRS/workstation-reservation-system/src/views/admin/approve.php?id=<?php echo $r['id']; ?>" class="btn btn-success btn-sm">Approve</a>
-                                                            <a href="/WRS/workstation-reservation-system/src/views/admin/cancel.php?id=<?php echo $r['id']; ?>" class="btn btn-danger btn-sm">Reject</a>
-                                                        <?php endif; ?>
-                                                    </td>
-                                                </tr>
+                                            <?php foreach ($resPaginated as $r):
+                                                $u = $userMap[$r['user_id']] ?? null;
+                                                $avatarUrl = $u && !empty($u['avatar']) ? '/WRS/workstation-reservation-system/uploads/avatars/' . $u['avatar'] : 'https://ui-avatars.com/api/?name=' . urlencode($u['username'] ?? $r['user_id']) . '&background=185a9d&color=fff&size=40';
+                                            ?>
+                                            <tr>
+                                                <td class="d-flex align-items-center gap-2">
+                                                    <img src="<?php echo $avatarUrl; ?>" alt="Profile" class="rounded-circle" style="width:28px;height:28px;object-fit:cover;">
+                                                    <span style="font-size:0.95em;"><?php echo htmlspecialchars($u['username'] ?? $r['user_id']); ?></span>
+                                                </td>
+                                                <td style="font-size:0.95em;"><?php echo htmlspecialchars($r['workstation_id']); ?></td>
+                                                <td style="font-size:0.95em;"><?php echo date('M d, H:i', strtotime($r['start_time'])); ?></td>
+                                                <td style="font-size:0.95em;"><?php echo date('M d, H:i', strtotime($r['end_time'])); ?></td>
+                                                <td>
+                                                    <span class="badge bg-<?php echo $r['status'] === 'approved' ? 'success' : ($r['status'] === 'pending' ? 'warning text-dark' : 'danger'); ?>">
+                                                        <?php echo ucfirst($r['status']); ?>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <?php if ($r['status'] === 'pending'): ?>
+                                                        <a href="/WRS/workstation-reservation-system/src/views/admin/approve.php?id=<?php echo $r['id']; ?>" class="btn btn-success btn-sm">Approve</a>
+                                                        <a href="/WRS/workstation-reservation-system/src/views/admin/cancel.php?id=<?php echo $r['id']; ?>" class="btn btn-danger btn-sm">Reject</a>
+                                                    <?php endif; ?>
+                                                </td>
+                                            </tr>
                                             <?php endforeach; ?>
                                         </tbody>
                                     </table>
                                 </div>
+                                <!-- Pagination for reservations -->
+                                <nav aria-label="Reservations pagination" class="mt-2">
+                                    <ul class="pagination pagination-sm justify-content-center mb-0">
+                                        <?php for ($i = 1; $i <= $resPages; $i++): ?>
+                                            <li class="page-item <?php if ($i == $resPage) echo 'active'; ?>">
+                                                <a class="page-link" href="?res_page=<?php echo $i; ?><?php if ($userPage > 1) echo '&user_page=' . $userPage; ?>"> <?php echo $i; ?> </a>
+                                            </li>
+                                        <?php endfor; ?>
+                                    </ul>
+                                </nav>
                             </div>
                         </div>
                     </div>
-                    <div class="col-8">
-                        <div class="card shadow card-equal">
-                            <div class="card-body">
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow card-equal" style="min-height: 320px; max-width: 100%;">
+                            <div class="card-body p-3">
                                 <h5 class="card-title"><i class="bi bi-person-lines-fill"></i> Recent Users</h5>
-                                <div class="table-responsive">
-                                    <table class="table table-striped align-middle mb-0">
+                                <div class="table-responsive" style="max-height: 260px; overflow-y: auto;">
+                                    <table class="table table-striped align-middle mb-0 table-sm">
                                         <thead>
                                             <tr>
+                                                <th>Avatar</th>
                                                 <th>Username</th>
                                                 <th>Role</th>
                                                 <th>Registered</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php foreach ($recentUsers as $u): ?>
-                                                <tr>
-                                                    <td><?php echo htmlspecialchars($u['username']); ?></td>
-                                                    <td><span class="badge bg-<?php echo $u['role'] === 'admin' ? 'primary' : 'secondary'; ?>"><?php echo ucfirst($u['role']); ?></span></td>
-                                                    <td><?php echo date('M d, Y', strtotime($u['created_at'])); ?></td>
-                                                </tr>
+                                            <?php foreach ($userPaginated as $u):
+                                                $avatarUrl = !empty($u['avatar']) ? '/WRS/workstation-reservation-system/uploads/avatars/' . $u['avatar'] : 'https://ui-avatars.com/api/?name=' . urlencode($u['username']) . '&background=185a9d&color=fff&size=40';
+                                            ?>
+                                            <tr>
+                                                <td><img src="<?php echo $avatarUrl; ?>" alt="Profile" class="rounded-circle" style="width:28px;height:28px;object-fit:cover;"></td>
+                                                <td style="font-size:0.95em;"><?php echo htmlspecialchars($u['username']); ?></td>
+                                                <td><span class="badge bg-<?php echo $u['role'] === 'admin' ? 'primary' : 'secondary'; ?>"> <?php echo ucfirst($u['role']); ?> </span></td>
+                                                <td style="font-size:0.95em;"><?php echo date('M d, Y', strtotime($u['created_at'])); ?></td>
+                                            </tr>
                                             <?php endforeach; ?>
                                         </tbody>
                                     </table>
                                 </div>
+                                <!-- Pagination for users -->
+                                <nav aria-label="Users pagination" class="mt-2">
+                                    <ul class="pagination pagination-sm justify-content-center mb-0">
+                                        <?php for ($i = 1; $i <= $userPages; $i++): ?>
+                                            <li class="page-item <?php if ($i == $userPage) echo 'active'; ?>">
+                                                <a class="page-link" href="?user_page=<?php echo $i; ?><?php if ($resPage > 1) echo '&res_page=' . $resPage; ?>"> <?php echo $i; ?> </a>
+                                            </li>
+                                        <?php endfor; ?>
+                                    </ul>
+                                </nav>
                             </div>
                         </div>
                     </div>
@@ -295,30 +382,26 @@ foreach ($workstations as $ws) {
             }
         });
     </script>
-    <script>
-// Enable Bootstrap tooltips
-var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-  return new bootstrap.Tooltip(tooltipTriggerEl);
-});
-// Dark mode toggle
-const toggleBtn = document.getElementById('darkmode-toggle');
-const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-function setTheme(theme) {
-    document.body.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-    toggleBtn.innerHTML = theme === 'dark' ? '<i class="bi bi-brightness-high"></i>' : '<i class="bi bi-moon-stars"></i>';
+    <style>
+.dashboard-main .card {
+    border-radius: 1.1rem !important;
+    box-shadow: 0 2px 16px rgba(79,140,255,0.10);
+    transition: box-shadow 0.2s, transform 0.2s;
+    padding-bottom: 0.5rem;
 }
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme) {
-    setTheme(savedTheme);
-} else if (prefersDark) {
-    setTheme('dark');
+.dashboard-main .card:hover {
+    box-shadow: 0 6px 32px rgba(79,140,255,0.18);
+    transform: translateY(-2px) scale(1.015);
 }
-toggleBtn.addEventListener('click', function() {
-    const current = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    setTheme(current);
-});
-</script>
+.dashboard-main .card .card-body {
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+}
+.dashboard-main .row.g-4 {
+    margin-bottom: 2.5rem !important;
+}
+.dashboard-main .welcome-banner {
+    margin-bottom: 2.5rem !important;
+}
+</style>
 </body>
 </html>

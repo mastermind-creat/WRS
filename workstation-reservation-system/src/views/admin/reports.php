@@ -27,6 +27,44 @@ $workstationUsageReport = $reportController->generateWorkstationUsageReport($sta
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/WRS/workstation-reservation-system/src/public/css/admin.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+        }
+        .dashboard-main {
+            background: var(--card-bg, #fff);
+        }
+        .card-equal {
+            border-radius: 1.1rem !important;
+            box-shadow: 0 2px 16px rgba(79,140,255,0.10);
+        }
+        .card-header {
+            border-radius: 1.1rem 1.1rem 0 0 !important;
+            font-weight: 600;
+            font-size: 1.1em;
+            letter-spacing: 0.01em;
+        }
+        .card-header.bg-primary, .card-header.bg-success, .card-header.bg-warning {
+            color: #fff;
+        }
+        .table thead th {
+            background: #f5faff;
+            color: #185a9d;
+            border-bottom: 2px solid #e0eafc;
+        }
+        .table-striped > tbody > tr:nth-of-type(odd) {
+            background-color: #f8fbff;
+        }
+        .table-hover > tbody > tr:hover {
+            background-color: #e0eafc;
+        }
+        .highlight-badge {
+            font-size: 1em;
+            font-weight: 600;
+            border-radius: 1em;
+            padding: 0.3em 0.8em;
+        }
+    </style>
 </head>
 <body>
 <?php include __DIR__ . '/../layout/navbar.php'; ?>
@@ -47,8 +85,8 @@ $workstationUsageReport = $reportController->generateWorkstationUsageReport($sta
             <div class="row g-4 mb-4">
                 <div class="col-lg-6 slide-in">
                     <div class="card shadow card-equal">
+                        <div class="card-header bg-primary"><i class="bi bi-calendar-range me-1"></i> Reservations Per Day</div>
                         <div class="card-body">
-                            <h5 class="card-title"><i class="bi bi-calendar-range"></i> Reservations Per Day</h5>
                             <button class="btn btn-outline-secondary btn-sm mb-2" onclick="exportTableToCSV('reservations-table', 'reservations_report.csv')"><i class="bi bi-download"></i> Export CSV</button>
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover align-middle mb-0" id="reservations-table">
@@ -65,7 +103,7 @@ $workstationUsageReport = $reportController->generateWorkstationUsageReport($sta
                                             <?php foreach ($reservationReport as $row): ?>
                                                 <tr>
                                                     <td><?php echo htmlspecialchars($row['date']); ?></td>
-                                                    <td><?php echo htmlspecialchars($row['total_reservations']); ?></td>
+                                                    <td><span class="badge bg-success highlight-badge"><?php echo htmlspecialchars($row['total_reservations']); ?></span></td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
@@ -77,8 +115,8 @@ $workstationUsageReport = $reportController->generateWorkstationUsageReport($sta
                 </div>
                 <div class="col-lg-6 slide-in">
                     <div class="card shadow card-equal">
+                        <div class="card-header bg-success"><i class="bi bi-person-lines-fill me-1"></i> User Activity</div>
                         <div class="card-body">
-                            <h5 class="card-title"><i class="bi bi-person-lines-fill"></i> User Activity</h5>
                             <button class="btn btn-outline-secondary btn-sm mb-2" onclick="exportTableToCSV('user-activity-table', 'user_activity_report.csv')"><i class="bi bi-download"></i> Export CSV</button>
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover align-middle mb-0" id="user-activity-table">
@@ -97,7 +135,7 @@ $workstationUsageReport = $reportController->generateWorkstationUsageReport($sta
                                                 <tr>
                                                     <td><?php echo htmlspecialchars($row['user_id']); ?></td>
                                                     <td><?php echo htmlspecialchars($row['username']); ?></td>
-                                                    <td><?php echo htmlspecialchars($row['activity_count']); ?></td>
+                                                    <td><span class="badge bg-primary highlight-badge"><?php echo htmlspecialchars($row['activity_count']); ?></span></td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
@@ -111,8 +149,8 @@ $workstationUsageReport = $reportController->generateWorkstationUsageReport($sta
             <div class="row g-4 mt-2">
                 <div class="col-12 slide-in">
                     <div class="card shadow card-equal">
+                        <div class="card-header bg-warning"><i class="bi bi-pc-display me-1"></i> Workstation Usage</div>
                         <div class="card-body">
-                            <h5 class="card-title"><i class="bi bi-pc-display"></i> Workstation Usage</h5>
                             <button class="btn btn-outline-secondary btn-sm mb-2" onclick="exportTableToCSV('workstation-usage-table', 'workstation_usage_report.csv')"><i class="bi bi-download"></i> Export CSV</button>
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover align-middle mb-0" id="workstation-usage-table">
@@ -131,7 +169,7 @@ $workstationUsageReport = $reportController->generateWorkstationUsageReport($sta
                                                 <tr>
                                                     <td><?php echo htmlspecialchars($row['workstation_id']); ?></td>
                                                     <td><?php echo htmlspecialchars($row['workstation_name']); ?></td>
-                                                    <td><?php echo htmlspecialchars($row['usage_count']); ?></td>
+                                                    <td><span class="badge bg-warning text-dark highlight-badge"><?php echo htmlspecialchars($row['usage_count']); ?></span></td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
@@ -146,6 +184,7 @@ $workstationUsageReport = $reportController->generateWorkstationUsageReport($sta
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 function exportTableToCSV(tableId, filename) {
     const table = document.getElementById(tableId);
@@ -171,6 +210,41 @@ function exportTableToCSV(tableId, filename) {
     link.click();
     document.body.removeChild(link);
 }
+
+// Chart.js dark mode support
+function updateChartsForTheme() {
+    if (window.Chart && Chart.instances) {
+        Object.values(Chart.instances).forEach(function(chart) {
+            if (!chart) return;
+            var isDark = document.body.getAttribute('data-theme') === 'dark';
+            if (chart.options.scales) {
+                if (chart.options.scales.x) {
+                    chart.options.scales.x.grid = chart.options.scales.x.grid || {};
+                    chart.options.scales.x.ticks = chart.options.scales.x.ticks || {};
+                    chart.options.scales.x.grid.color = isDark ? '#444' : '#e0eafc';
+                    chart.options.scales.x.ticks.color = isDark ? '#fff' : '#222';
+                }
+                if (chart.options.scales.y) {
+                    chart.options.scales.y.grid = chart.options.scales.y.grid || {};
+                    chart.options.scales.y.ticks = chart.options.scales.y.ticks || {};
+                    chart.options.scales.y.grid.color = isDark ? '#444' : '#e0eafc';
+                    chart.options.scales.y.ticks.color = isDark ? '#fff' : '#222';
+                }
+            }
+            if (chart.options.plugins && chart.options.plugins.legend && chart.options.plugins.legend.labels) {
+                chart.options.plugins.legend.labels.color = isDark ? '#fff' : '#222';
+            }
+            if (chart.options.plugins && chart.options.plugins.title) {
+                chart.options.plugins.title.color = isDark ? '#fff' : '#222';
+            }
+            chart.update('none');
+        });
+    }
+}
+// Listen for theme changes
+const observer = new MutationObserver(updateChartsForTheme);
+observer.observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
+window.addEventListener('DOMContentLoaded', updateChartsForTheme);
 </script>
 </body>
 </html>

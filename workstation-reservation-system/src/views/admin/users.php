@@ -1,5 +1,5 @@
 <?php
-session_start();
+    session_start();
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header('Location: /WRS/workstation-reservation-system/src/views/auth/login.php');
     exit();
@@ -15,7 +15,7 @@ require_once '../../config/database.php';
 require_once '../../models/User.php';
 require_once '../../models/Reservation.php';
 
-$userModel = new User($pdo);
+                $userModel = new User($pdo);
 $reservationModel = new Reservation($pdo);
 
 // Handle promote to admin
@@ -43,7 +43,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete']) && isset($_GET['csrf']
     if (!empty($_GET['role']) && $_GET['role'] !== 'all') $redirectParams[] = 'role=' . urlencode($_GET['role']);
     $redirectParams[] = 'msg=deleted';
     header('Location: users.php?' . implode('&', $redirectParams));
-    exit();
+                            exit();
 }
 
 // Handle edit user
@@ -307,48 +307,48 @@ if (!isset($message)) $message = '';
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($users as $u): ?>
-                                    <tr>
-                                        <td><?php echo $u['id']; ?></td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <?php
-                                                $avatarUrl = !empty($u['avatar'])
-                                                    ? '/WRS/workstation-reservation-system/uploads/avatars/' . $u['avatar']
-                                                    : 'https://ui-avatars.com/api/?name=' . urlencode($u['username']) . '&background=667eea&color=fff&size=64';
-                                                ?>
+                                <tr>
+                                    <td><?php echo $u['id']; ?></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <?php
+                                            $avatarUrl = !empty($u['avatar'])
+                                                ? '/WRS/workstation-reservation-system/uploads/avatars/' . $u['avatar']
+                                                : 'https://ui-avatars.com/api/?name=' . urlencode($u['username']) . '&background=667eea&color=fff&size=64';
+                                            ?>
                                                 <img src="<?php echo $avatarUrl; ?>" class="avatar me-2" alt="<?php echo htmlspecialchars($u['username']); ?>">
-                                                <div>
-                                                    <strong><?php echo htmlspecialchars($u['username']); ?></strong>
-                                                </div>
+                                            <div>
+                                                <strong><?php echo htmlspecialchars($u['username']); ?></strong>
                                             </div>
-                                        </td>
-                                        <td><?php echo htmlspecialchars($u['email']); ?></td>
-                                        <td>
-                                            <span class="badge <?php echo $u['role'] === 'admin' ? 'badge-admin' : 'badge-user'; ?>">
-                                                <i class="bi <?php echo $u['role'] === 'admin' ? 'bi-shield-check' : 'bi-person'; ?> me-1"></i>
-                                                <?php echo ucfirst($u['role']); ?>
-                                            </span>
-                                        </td>
-                                        <td><?php echo date('M d, Y', strtotime($u['created_at'])); ?></td>
-                                        <td>
+                                        </div>
+                                    </td>
+                                    <td><?php echo htmlspecialchars($u['email']); ?></td>
+                                    <td>
+                                        <span class="badge <?php echo $u['role'] === 'admin' ? 'badge-admin' : 'badge-user'; ?>">
+                                            <i class="bi <?php echo $u['role'] === 'admin' ? 'bi-shield-check' : 'bi-person'; ?> me-1"></i>
+                                            <?php echo ucfirst($u['role']); ?>
+                                        </span>
+                                    </td>
+                                    <td><?php echo date('M d, Y', strtotime($u['created_at'])); ?></td>
+                                    <td>
                                             <span class="badge bg-info text-white">
                                                 <i class="bi bi-calendar-check me-1"></i>
-                                                <?php echo count($reservationModel->getReservationsByUser($u['id'])); ?>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editUserModal<?php echo $u['id']; ?>" title="Edit">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
-                                                <?php if ($u['role'] !== 'admin'): ?>
+                                            <?php echo count($reservationModel->getReservationsByUser($u['id'])); ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editUserModal<?php echo $u['id']; ?>" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <?php if ($u['role'] !== 'admin'): ?>
                                                     <a href="users.php?promote=<?php echo $u['id']; ?>&csrf=<?php echo $csrf_token; ?>&search=<?php echo urlencode($search); ?>&role=<?php echo urlencode($roleFilter); ?>" class="btn btn-sm btn-outline-success" title="Promote">
-                                                        <i class="bi bi-person-up"></i>
-                                                    </a>
-                                                <?php endif; ?>
-                                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal<?php echo $u['id']; ?>" title="Delete">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
+                                                    <i class="bi bi-person-up"></i>
+                                                </a>
+                                            <?php endif; ?>
+                                            <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal<?php echo $u['id']; ?>" title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -360,121 +360,121 @@ if (!isset($message)) $message = '';
             </div>
         </main>
     </div>
-</div>
-
+                                        </div>
+                                        
 <!-- Modals -->
 <?php foreach ($users as $u): ?>
-    <!-- Edit Modal -->
-    <div class="modal fade" id="editUserModal<?php echo $u['id']; ?>" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form method="POST">
-                    <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                    <input type="hidden" name="user_id" value="<?php echo $u['id']; ?>">
+                                        <!-- Edit Modal -->
+                                        <div class="modal fade" id="editUserModal<?php echo $u['id']; ?>" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <form method="POST">
+                                                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                                        <input type="hidden" name="user_id" value="<?php echo $u['id']; ?>">
                     <input type="hidden" name="search" value="<?php echo htmlspecialchars($search); ?>">
                     <input type="hidden" name="role" value="<?php echo htmlspecialchars($roleFilter); ?>">
-                    <div class="modal-header">
-                        <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Edit User</h5>
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Edit User</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Username</label>
-                            <input type="text" class="form-control" name="username" value="<?php echo htmlspecialchars($u['username']); ?>" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" class="form-control" name="email" value="<?php echo htmlspecialchars($u['email']); ?>" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Role</label>
-                            <select class="form-select" name="role">
-                                <option value="user" <?php if ($u['role'] === 'user') echo 'selected'; ?>>User</option>
-                                <option value="admin" <?php if ($u['role'] === 'admin') echo 'selected'; ?>>Admin</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" name="edit_user" class="btn btn-primary">Save Changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Modal -->
-    <div class="modal fade" id="deleteUserModal<?php echo $u['id']; ?>" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-trash me-2"></i>Confirm Delete</h5>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Username</label>
+                                                                <input type="text" class="form-control" name="username" value="<?php echo htmlspecialchars($u['username']); ?>" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Email</label>
+                                                                <input type="email" class="form-control" name="email" value="<?php echo htmlspecialchars($u['email']); ?>" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Role</label>
+                                                                <select class="form-select" name="role">
+                                                                    <option value="user" <?php if ($u['role'] === 'user') echo 'selected'; ?>>User</option>
+                                                                    <option value="admin" <?php if ($u['role'] === 'admin') echo 'selected'; ?>>Admin</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" name="edit_user" class="btn btn-primary">Save Changes</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Delete Modal -->
+                                        <div class="modal fade" id="deleteUserModal<?php echo $u['id']; ?>" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title"><i class="bi bi-trash me-2"></i>Confirm Delete</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
+                                                    </div>
+                                                    <div class="modal-body">
                     <p>Are you sure you want to delete user <strong><?php echo htmlspecialchars($u['username']); ?></strong>?</p>
-                    <div class="alert alert-warning">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
+                                                        <div class="alert alert-warning">
+                                                            <i class="bi bi-exclamation-triangle me-2"></i>
                         This action cannot be undone.
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <a href="users.php?delete=<?php echo $u['id']; ?>&csrf=<?php echo $csrf_token; ?>&search=<?php echo urlencode($search); ?>&role=<?php echo urlencode($roleFilter); ?>" class="btn btn-danger">Delete</a>
-                </div>
-            </div>
-        </div>
-    </div>
-<?php endforeach; ?>
-
-<!-- Create Admin Modal -->
-<div class="modal fade" id="createAdminModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="POST">
-                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                            <?php endforeach; ?>
+            
+            <!-- Create Admin Modal -->
+            <div class="modal fade" id="createAdminModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="POST">
+                            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                 <input type="hidden" name="search" value="<?php echo htmlspecialchars($search); ?>">
                 <input type="hidden" name="role" value="<?php echo htmlspecialchars($roleFilter); ?>">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>Create Admin</h5>
+                            <div class="modal-header">
+                                <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>Create Admin</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Username</label>
-                        <input type="text" class="form-control" name="username" required>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Username</label>
+                                    <input type="text" class="form-control" name="username" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" name="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" class="form-control" name="password" required>
+                                    <div class="form-text">Minimum 8 characters</div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" name="create_admin" class="btn btn-success">Create Admin</button>
+                            </div>
+                        </form>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-control" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Password</label>
-                        <input type="password" class="form-control" name="password" required>
-                        <div class="form-text">Minimum 8 characters</div>
-                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" name="create_admin" class="btn btn-success">Create Admin</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Toast Notification -->
-<div class="position-fixed bottom-0 end-0 p-3 toast-container">
-    <div id="toastMsg" class="toast align-items-center text-white bg-primary border-0 <?php if ($toast) echo 'show'; ?>" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body">
-                <i class="bi bi-check-circle me-2"></i>
-                <?php echo htmlspecialchars($toast); ?>
             </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    </div>
-</div>
+            
+            <!-- Toast Notification -->
+            <div class="position-fixed bottom-0 end-0 p-3 toast-container">
+                <div id="toastMsg" class="toast align-items-center text-white bg-primary border-0 <?php if ($toast) echo 'show'; ?>" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="bi bi-check-circle me-2"></i>
+                            <?php echo htmlspecialchars($toast); ?>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -483,18 +483,18 @@ if (!isset($message)) $message = '';
         var toastEl = document.getElementById('toastMsg');
         if (toastEl) {
             var toast = new bootstrap.Toast(toastEl);
-            toast.show();
-            
-            // Auto-hide after 5 seconds
-            setTimeout(function() {
-                toast.hide();
-            }, 5000);
-        }
+        toast.show();
         
-        // Initialize tooltips
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
+        // Auto-hide after 5 seconds
+        setTimeout(function() {
+            toast.hide();
+        }, 5000);
+    }
+    
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
         });
         
         // Reset form when modal is closed
