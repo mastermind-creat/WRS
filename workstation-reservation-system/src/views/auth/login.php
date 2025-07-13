@@ -1,9 +1,14 @@
 <?php
 session_start();
 
-if (isset($_SESSION['user_id'])) {
-    header("Location: /WRS/workstation-reservation-system/src/views/user/dashboard.php");
-    exit();
+if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
+    if ($_SESSION['role'] === 'admin' || $_SESSION['role'] === 'super_admin') {
+        header("Location: /WRS/workstation-reservation-system/src/views/admin/dashboard.php");
+        exit();
+    } elseif ($_SESSION['role'] === 'user') {
+        header("Location: /WRS/workstation-reservation-system/src/views/user/dashboard.php");
+        exit();
+    }
 }
 
 $error = '';

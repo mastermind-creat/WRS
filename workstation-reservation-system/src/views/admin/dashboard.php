@@ -1,6 +1,6 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'super_admin'])) {
     header('Location: /WRS/workstation-reservation-system/src/views/auth/login.php');
     exit();
 }
@@ -13,11 +13,48 @@ require_once '../../models/Reservation.php';
 $userModel = new User($pdo);
 $users = $userModel->getAllUsers();
 $userCount = count($users);
+
+// Count users by role
+$superAdminCount = 0;
+$adminCount = 0;
+$regularUserCount = 0;
+foreach ($users as $user) {
+    switch ($user['role']) {
+        case 'super_admin':
+            $superAdminCount++;
+            break;
+        case 'admin':
+            $adminCount++;
+            break;
+        case 'user':
+            $regularUserCount++;
+            break;
+    }
+}
+
 $workstations = Workstation::getAllWorkstations($pdo);
 $workstationCount = count($workstations);
 $reservationModel = new Reservation($pdo);
 $reservations = $reservationModel->getAllReservations();
 $reservationCount = count($reservations);
+
+// Count reservations by status
+$approvedCount = 0;
+$pendingCount = 0;
+$rejectedCount = 0;
+foreach ($reservations as $reservation) {
+    switch ($reservation['status']) {
+        case 'approved':
+            $approvedCount++;
+            break;
+        case 'pending':
+            $pendingCount++;
+            break;
+        case 'canceled':
+            $rejectedCount++;
+            break;
+    }
+}
 
 // Prepare data for charts (last 7 days)
 $reservationsPerDay = [];
@@ -136,6 +173,17 @@ if (isset($_SESSION['user_id'])) {
                                 <i class="bi bi-people-fill display-5"></i>
                                 <h5 class="card-title mt-2">Users</h5>
                                 <p class="card-text fs-4 fw-bold"><?php echo $userCount; ?></p>
+                                <div class="d-flex justify-content-center gap-2 mt-2">
+                                    <span class="badge bg-danger" title="Super Admins">
+                                        <i class="bi bi-shield-star me-1"></i><?php echo $superAdminCount; ?>
+                                    </span>
+                                    <span class="badge bg-primary" title="Admins">
+                                        <i class="bi bi-shield-check me-1"></i><?php echo $adminCount; ?>
+                                    </span>
+                                    <span class="badge bg-light text-dark" title="Regular Users">
+                                        <i class="bi bi-person me-1"></i><?php echo $regularUserCount; ?>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -171,6 +219,17 @@ if (isset($_SESSION['user_id'])) {
                                 <i class="bi bi-calendar-check display-5"></i>
                                 <h5 class="card-title mt-2">Reservations</h5>
                                 <p class="card-text fs-4 fw-bold"><?php echo $reservationCount; ?></p>
+                                <div class="d-flex justify-content-center gap-2 mt-2">
+                                    <span class="badge bg-success" title="Approved">
+                                        <i class="bi bi-check-circle me-1"></i><?php echo $approvedCount; ?>
+                                    </span>
+                                    <span class="badge bg-warning text-dark" title="Pending">
+                                        <i class="bi bi-clock me-1"></i><?php echo $pendingCount; ?>
+                                    </span>
+                                    <span class="badge bg-danger" title="Rejected/Canceled">
+                                        <i class="bi bi-x-circle me-1"></i><?php echo $rejectedCount; ?>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -241,10 +300,10 @@ if (isset($_SESSION['user_id'])) {
                         <div class="card shadow h-100 text-center card-equal"
                             style="min-height:290px; max-height:300px;">
                             <div class="card-body d-flex flex-column justify-content-center align-items-center"
-                                style="height: 100%; min-height:280px; max-height:300px;">
+                                style="height: 100%; min-height:280px; max-height:300px; overflow: hidden;">
                                 <i class="bi bi-star-fill display-6 text-warning"></i>
                                 <h5 class="card-title mt-2">Most Active Users</h5>
-                                <div class="d-flex flex-column align-items-center mt-3">
+                                <div class="d-flex flex-column align-items-center mt-3 w-100" style="max-height: 140px; overflow-y: auto;">
                                     <?php
                                     // Count reservations per user
                                     $userReservationCounts = [];
@@ -264,14 +323,14 @@ if (isset($_SESSION['user_id'])) {
                                     foreach ($topUserIds as $uid):
                                         $u = $userMap[$uid] ?? null;
                                         if (!$u) continue;
-                                        $avatarUrl = !empty($u['avatar']) ? '/WRS/workstation-reservation-system/uploads/avatars/' . $u['avatar'] : 'https://ui-avatars.com/api/?name=' . urlencode($u['username']) . '&background=185a9d&color=fff&size=64';
+                                        $avatarUrl = !empty($u['avatar']) ? '/WRS/workstation-reservation-system/uploads/avatars/' . $u['avatar'] : 'https://ui-avatars.com/api/?name=' . urlencode($u['username']) . '&background=185a9d&color=fff&size=40';
                                     ?>
-                                        <div class="d-flex align-items-center mb-2 w-100">
-                                            <img src="<?php echo $avatarUrl; ?>" alt="Profile" class="rounded-circle me-2"
-                                                style="width:40px;height:40px;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,0.10);">
-                                            <span class="fw-semibold text-truncate" style="max-width:120px;">
+                                        <div class="d-flex align-items-center mb-2 w-100" style="gap: 0.5rem;">
+                                            <img src="<?php echo $avatarUrl; ?>" alt="Profile" class="rounded-circle"
+                                                style="width:32px;height:32px;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,0.10);">
+                                            <span class="fw-semibold text-truncate" style="max-width:80px; font-size:0.98em;">
                                                 <?php echo htmlspecialchars($u['username']); ?> </span>
-                                            <span class="badge bg-light text-dark ms-auto">
+                                            <span class="badge bg-light text-dark ms-auto" style="font-size:0.95em;">
                                                 <?php echo $userReservationCounts[$uid]; ?> </span>
                                         </div>
                                     <?php endforeach; ?>

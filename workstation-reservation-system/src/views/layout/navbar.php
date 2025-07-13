@@ -29,7 +29,7 @@ if ($isLoggedIn) {
     }
 }
 
-if ($isLoggedIn && $role === 'admin') {
+if ($isLoggedIn && in_array($role, ['admin', 'super_admin'])) {
     require_once __DIR__ . '/../../config/database.php';
     require_once __DIR__ . '/../../models/Reservation.php';
     $reservationModel = new Reservation($pdo);
@@ -49,9 +49,11 @@ if ($isLoggedIn && $role === 'admin') {
                 <li class="nav-item">
                     <a class="nav-link <?php echo isActive('/WRS/workstation-reservation-system/src/views/landing.php'); ?>" href="/WRS/workstation-reservation-system/src/views/landing.php">Home</a>
                 </li>
-                <?php if ($isLoggedIn && $role === 'admin'): ?>
+                <?php if ($isLoggedIn && in_array($role, ['admin', 'super_admin'])): ?>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo isActive('/WRS/workstation-reservation-system/src/views/admin/dashboard.php'); ?>" href="/WRS/workstation-reservation-system/src/views/admin/dashboard.php">Admin Dashboard</a>
+                        <a class="nav-link <?php echo isActive('/WRS/workstation-reservation-system/src/views/admin/dashboard.php'); ?>" href="/WRS/workstation-reservation-system/src/views/admin/dashboard.php">
+                            <?php echo $role === 'super_admin' ? 'Super Admin' : 'Admin'; ?> Dashboard
+                        </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link <?php echo isActive('/WRS/workstation-reservation-system/src/views/admin/reservations.php'); ?>" href="/WRS/workstation-reservation-system/src/views/admin/reservations.php">
