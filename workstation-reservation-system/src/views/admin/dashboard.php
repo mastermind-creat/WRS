@@ -35,13 +35,13 @@ for ($i = 6; $i >= 0; $i--) {
 }
 
 // Get 5 most recent reservations
-usort($reservations, function($a, $b) {
+usort($reservations, function ($a, $b) {
     return strtotime($b['start_time']) - strtotime($a['start_time']);
 });
 $recentReservations = array_slice($reservations, 0, 5);
 
 // Get 5 most recent users
-usort($users, function($a, $b) {
+usort($users, function ($a, $b) {
     return strtotime($b['created_at']) - strtotime($a['created_at']);
 });
 $recentUsers = array_slice($users, 0, 5);
@@ -88,6 +88,7 @@ if (isset($_SESSION['user_id'])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -96,34 +97,41 @@ if (isset($_SESSION['user_id'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/WRS/workstation-reservation-system/src/public/css/admin.css">
 </head>
+
 <body>
-<?php include __DIR__ . '/../layout/navbar.php'; ?>
+    <?php include __DIR__ . '/../layout/navbar.php'; ?>
     <div class="container-fluid">
         <div class="row flex-nowrap">
             <div class="col-lg-3 p-0 sidebar">
                 <?php include __DIR__ . '/../layout/sidebar.php'; ?>
             </div>
-            <main class="col-lg-9 dashboard-main fade-in" >
+            <main class="col-lg-9 dashboard-main fade-in">
                 <div class="welcome-banner d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center">
-                        <img src="<?php echo $adminAvatarUrl; ?>" alt="Admin Avatar" class="rounded-circle me-3" style="width:64px;height:64px;box-shadow:0 2px 8px rgba(0,0,0,0.12);">
+                        <img src="<?php echo $adminAvatarUrl; ?>" alt="Admin Avatar" class="rounded-circle me-3"
+                            style="width:64px;height:64px;box-shadow:0 2px 8px rgba(0,0,0,0.12);">
                         <div>
                             <h2 class="mb-1">Welcome, <?php echo htmlspecialchars($adminName); ?>.</h2>
-                            <div class="date"><i class="bi bi-calendar-event"></i> <?php echo date('l, F j, Y'); ?></div>
+                            <div class="date"><i class="bi bi-calendar-event"></i> <?php echo date('l, F j, Y'); ?>
+                            </div>
                         </div>
                     </div>
                     <div class="d-flex align-items-center justify-content-end">
                         <div>
                             <span class="fs-5">System Quick Stats</span>
-                            <span class="badge bg-primary ms-2" title="Total Users"><i class="bi bi-people-fill"></i> <?php echo $userCount; ?></span>
-                            <span class="badge bg-success ms-2" title="Total Workstations"><i class="bi bi-pc-display-horizontal"></i> <?php echo $workstationCount; ?></span>
-                            <span class="badge bg-warning text-dark ms-2" title="Total Reservations"><i class="bi bi-calendar-check"></i> <?php echo $reservationCount; ?></span>
+                            <span class="badge bg-primary ms-2" title="Total Users"><i class="bi bi-people-fill"></i>
+                                <?php echo $userCount; ?></span>
+                            <span class="badge bg-success ms-2" title="Total Workstations"><i
+                                    class="bi bi-pc-display-horizontal"></i> <?php echo $workstationCount; ?></span>
+                            <span class="badge bg-warning text-dark ms-2" title="Total Reservations"><i
+                                    class="bi bi-calendar-check"></i> <?php echo $reservationCount; ?></span>
                         </div>
                     </div>
                 </div>
                 <div class="row g-4 mb-4">
                     <div class="col-md-4 slide-in">
-                        <div class="card shadow text-center border-0 card-equal card-action" style="background: linear-gradient(135deg, #4f8cff 0%, #6dd5ed 100%); color: #fff;">
+                        <div class="card shadow text-center border-0 card-equal card-action"
+                            style="background: linear-gradient(135deg, #4f8cff 0%, #6dd5ed 100%); color: #fff;">
                             <div class="card-body">
                                 <i class="bi bi-people-fill display-5"></i>
                                 <h5 class="card-title mt-2">Users</h5>
@@ -132,23 +140,33 @@ if (isset($_SESSION['user_id'])) {
                         </div>
                     </div>
                     <div class="col-md-4 slide-in">
-                        <div class="card shadow text-center border-0 card-equal card-action" style="background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%); color: #fff;">
+                        <div class="card shadow text-center border-0 card-equal card-action"
+                            style="background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%); color: #fff;">
                             <div class="card-body">
                                 <i class="bi bi-pc-display-horizontal display-5"></i>
                                 <h5 class="card-title mt-2">Workstations</h5>
                                 <p class="card-text fs-4 fw-bold"><?php echo $workstationCount; ?></p>
                                 <div class="progress my-2" title="Busy/Idle Ratio">
                                     <?php $busyPercent = $workstationCount > 0 ? round(($busyCount / $workstationCount) * 100) : 0; ?>
-                                    <div class="progress-bar bg-danger" role="progressbar" style="width: <?php echo $busyPercent; ?>%" aria-valuenow="<?php echo $busyPercent; ?>" aria-valuemin="0" aria-valuemax="100">Busy: <?php echo $busyCount; ?></div>
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo 100 - $busyPercent; ?>%" aria-valuenow="<?php echo 100 - $busyPercent; ?>" aria-valuemin="0" aria-valuemax="100">Idle: <?php echo $idleCount; ?></div>
+                                    <div class="progress-bar bg-danger" role="progressbar"
+                                        style="width: <?php echo $busyPercent; ?>%"
+                                        aria-valuenow="<?php echo $busyPercent; ?>" aria-valuemin="0"
+                                        aria-valuemax="100">Busy: <?php echo $busyCount; ?></div>
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                        style="width: <?php echo 100 - $busyPercent; ?>%"
+                                        aria-valuenow="<?php echo 100 - $busyPercent; ?>" aria-valuemin="0"
+                                        aria-valuemax="100">Idle: <?php echo $idleCount; ?></div>
                                 </div>
-                                <span class="badge bg-danger me-2" title="Busy workstations">Busy: <?php echo $busyCount; ?></span>
-                                <span class="badge bg-success" title="Idle workstations">Idle: <?php echo $idleCount; ?></span>
+                                <span class="badge bg-danger me-2" title="Busy workstations">Busy:
+                                    <?php echo $busyCount; ?></span>
+                                <span class="badge bg-success" title="Idle workstations">Idle:
+                                    <?php echo $idleCount; ?></span>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4 slide-in">
-                        <div class="card shadow text-center border-0 card-equal card-action" style="background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); color: #333;">
+                        <div class="card shadow text-center border-0 card-equal card-action"
+                            style="background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); color: #333;">
                             <div class="card-body">
                                 <i class="bi bi-calendar-check display-5"></i>
                                 <h5 class="card-title mt-2">Reservations</h5>
@@ -160,8 +178,10 @@ if (isset($_SESSION['user_id'])) {
                 <!-- Quick Action Cards -->
                 <div class="row g-4 mb-4">
                     <div class="col-md-3 slide-in">
-                        <a href="/WRS/workstation-reservation-system/src/views/admin/users.php" class="text-decoration-none">
-                            <div class="card card-action text-center border-0 shadow h-100" style="background: linear-gradient(135deg, #4f8cff 0%, #6dd5ed 100%); color: #fff;">
+                        <a href="/WRS/workstation-reservation-system/src/views/admin/users.php"
+                            class="text-decoration-none">
+                            <div class="card card-action text-center border-0 shadow h-100"
+                                style="background: linear-gradient(135deg, #4f8cff 0%, #6dd5ed 100%); color: #fff;">
                                 <div class="card-body">
                                     <i class="bi bi-people display-5"></i>
                                     <h5 class="card-title mt-2">Manage Users</h5>
@@ -170,8 +190,10 @@ if (isset($_SESSION['user_id'])) {
                         </a>
                     </div>
                     <div class="col-md-3 slide-in">
-                        <a href="/WRS/workstation-reservation-system/src/views/admin/workstations.php" class="text-decoration-none">
-                            <div class="card card-action text-center border-0 shadow h-100" style="background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%); color: #fff;">
+                        <a href="/WRS/workstation-reservation-system/src/views/admin/workstations.php"
+                            class="text-decoration-none">
+                            <div class="card card-action text-center border-0 shadow h-100"
+                                style="background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%); color: #fff;">
                                 <div class="card-body">
                                     <i class="bi bi-pc-display display-5"></i>
                                     <h5 class="card-title mt-2">Manage Workstations</h5>
@@ -180,8 +202,10 @@ if (isset($_SESSION['user_id'])) {
                         </a>
                     </div>
                     <div class="col-md-3 slide-in">
-                        <a href="/WRS/workstation-reservation-system/src/views/admin/reports.php" class="text-decoration-none">
-                            <div class="card card-action text-center border-0 shadow h-100" style="background: linear-gradient(135deg, #ffb347 0%, #ffcc33 100%); color: #333;">
+                        <a href="/WRS/workstation-reservation-system/src/views/admin/reports.php"
+                            class="text-decoration-none">
+                            <div class="card card-action text-center border-0 shadow h-100"
+                                style="background: linear-gradient(135deg, #ffb347 0%, #ffcc33 100%); color: #333;">
                                 <div class="card-body">
                                     <i class="bi bi-bar-chart-line display-5"></i>
                                     <h5 class="card-title mt-2">View Reports</h5>
@@ -190,8 +214,10 @@ if (isset($_SESSION['user_id'])) {
                         </a>
                     </div>
                     <div class="col-md-3 slide-in">
-                        <a href="/WRS/workstation-reservation-system/src/views/admin/dashboard.php" class="text-decoration-none">
-                            <div class="card card-action text-center border-0 shadow h-100" style="background: linear-gradient(135deg, #e96443 0%, #904e95 100%); color: #fff;">
+                        <a href="/WRS/workstation-reservation-system/src/views/admin/dashboard.php"
+                            class="text-decoration-none">
+                            <div class="card card-action text-center border-0 shadow h-100"
+                                style="background: linear-gradient(135deg, #e96443 0%, #904e95 100%); color: #fff;">
                                 <div class="card-body">
                                     <i class="bi bi-plus-circle display-5"></i>
                                     <h5 class="card-title mt-2">Add Workstation</h5>
@@ -203,15 +229,19 @@ if (isset($_SESSION['user_id'])) {
                 <div class="row g-4 mb-4">
                     <div class="col-md-8">
                         <div class="card shadow h-100 card-equal" style="min-height:290px; max-height:300px;">
-                            <div class="card-body d-flex flex-column justify-content-center align-items-center" style="height: 100%; min-height:280px; max-height:300px;">
+                            <div class="card-body d-flex flex-column justify-content-center align-items-center"
+                                style="height: 100%; min-height:280px; max-height:300px;">
                                 <h5 class="card-title"><i class="bi bi-graph-up"></i> Reservations (Last 7 Days)</h5>
-                                <canvas id="reservationsChart" height="60" style="max-width:100%;max-height:120px;"></canvas>
+                                <canvas id="reservationsChart" height="60"
+                                    style="max-width:100%;max-height:120px;"></canvas>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="card shadow h-100 text-center card-equal" style="min-height:290px; max-height:300px;">
-                            <div class="card-body d-flex flex-column justify-content-center align-items-center" style="height: 100%; min-height:280px; max-height:300px;">
+                        <div class="card shadow h-100 text-center card-equal"
+                            style="min-height:290px; max-height:300px;">
+                            <div class="card-body d-flex flex-column justify-content-center align-items-center"
+                                style="height: 100%; min-height:280px; max-height:300px;">
                                 <i class="bi bi-star-fill display-6 text-warning"></i>
                                 <h5 class="card-title mt-2">Most Active Users</h5>
                                 <div class="d-flex flex-column align-items-center mt-3">
@@ -236,11 +266,14 @@ if (isset($_SESSION['user_id'])) {
                                         if (!$u) continue;
                                         $avatarUrl = !empty($u['avatar']) ? '/WRS/workstation-reservation-system/uploads/avatars/' . $u['avatar'] : 'https://ui-avatars.com/api/?name=' . urlencode($u['username']) . '&background=185a9d&color=fff&size=64';
                                     ?>
-                                    <div class="d-flex align-items-center mb-2 w-100">
-                                        <img src="<?php echo $avatarUrl; ?>" alt="Profile" class="rounded-circle me-2" style="width:40px;height:40px;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,0.10);">
-                                        <span class="fw-semibold text-truncate" style="max-width:120px;"> <?php echo htmlspecialchars($u['username']); ?> </span>
-                                        <span class="badge bg-light text-dark ms-auto"> <?php echo $userReservationCounts[$uid]; ?> </span>
-                                    </div>
+                                        <div class="d-flex align-items-center mb-2 w-100">
+                                            <img src="<?php echo $avatarUrl; ?>" alt="Profile" class="rounded-circle me-2"
+                                                style="width:40px;height:40px;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,0.10);">
+                                            <span class="fw-semibold text-truncate" style="max-width:120px;">
+                                                <?php echo htmlspecialchars($u['username']); ?> </span>
+                                            <span class="badge bg-light text-dark ms-auto">
+                                                <?php echo $userReservationCounts[$uid]; ?> </span>
+                                        </div>
                                     <?php endforeach; ?>
                                 </div>
                             </div>
@@ -261,7 +294,7 @@ if (isset($_SESSION['user_id'])) {
                                                 <th>Start</th>
                                                 <th>End</th>
                                                 <th>Status</th>
-                                                <th>Actions</th>
+                                                <!-- <th>Actions</th> -->
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -269,26 +302,28 @@ if (isset($_SESSION['user_id'])) {
                                                 $u = $userMap[$r['user_id']] ?? null;
                                                 $avatarUrl = $u && !empty($u['avatar']) ? '/WRS/workstation-reservation-system/uploads/avatars/' . $u['avatar'] : 'https://ui-avatars.com/api/?name=' . urlencode($u['username'] ?? $r['user_id']) . '&background=185a9d&color=fff&size=40';
                                             ?>
-                                            <tr>
-                                                <td class="d-flex align-items-center gap-2">
-                                                    <img src="<?php echo $avatarUrl; ?>" alt="Profile" class="rounded-circle" style="width:28px;height:28px;object-fit:cover;">
-                                                    <span style="font-size:0.95em;"><?php echo htmlspecialchars($u['username'] ?? $r['user_id']); ?></span>
-                                                </td>
-                                                <td style="font-size:0.95em;"><?php echo htmlspecialchars($r['workstation_id']); ?></td>
-                                                <td style="font-size:0.95em;"><?php echo date('M d, H:i', strtotime($r['start_time'])); ?></td>
-                                                <td style="font-size:0.95em;"><?php echo date('M d, H:i', strtotime($r['end_time'])); ?></td>
-                                                <td>
-                                                    <span class="badge bg-<?php echo $r['status'] === 'approved' ? 'success' : ($r['status'] === 'pending' ? 'warning text-dark' : 'danger'); ?>">
-                                                        <?php echo ucfirst($r['status']); ?>
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <?php if ($r['status'] === 'pending'): ?>
-                                                        <a href="/WRS/workstation-reservation-system/src/views/admin/approve.php?id=<?php echo $r['id']; ?>" class="btn btn-success btn-sm">Approve</a>
-                                                        <a href="/WRS/workstation-reservation-system/src/views/admin/cancel.php?id=<?php echo $r['id']; ?>" class="btn btn-danger btn-sm">Reject</a>
-                                                    <?php endif; ?>
-                                                </td>
-                                            </tr>
+                                                <tr>
+                                                    <td class="d-flex align-items-center gap-2">
+                                                        <img src="<?php echo $avatarUrl; ?>" alt="Profile"
+                                                            class="rounded-circle"
+                                                            style="width:28px;height:28px;object-fit:cover;">
+                                                        <span
+                                                            style="font-size:0.95em;"><?php echo htmlspecialchars($u['username'] ?? $r['user_id']); ?></span>
+                                                    </td>
+                                                    <td style="font-size:0.95em;">
+                                                        <?php echo htmlspecialchars($r['workstation_id']); ?></td>
+                                                    <td style="font-size:0.95em;">
+                                                        <?php echo date('M d, H:i', strtotime($r['start_time'])); ?></td>
+                                                    <td style="font-size:0.95em;">
+                                                        <?php echo date('M d, H:i', strtotime($r['end_time'])); ?></td>
+                                                    <td>
+                                                        <span
+                                                            class="badge bg-<?php echo $r['status'] === 'approved' ? 'success' : ($r['status'] === 'pending' ? 'warning text-dark' : 'danger'); ?>">
+                                                            <?php echo ucfirst($r['status']); ?>
+                                                        </span>
+                                                    </td>
+
+                                                </tr>
                                             <?php endforeach; ?>
                                         </tbody>
                                     </table>
@@ -298,7 +333,9 @@ if (isset($_SESSION['user_id'])) {
                                     <ul class="pagination pagination-sm justify-content-center mb-0">
                                         <?php for ($i = 1; $i <= $resPages; $i++): ?>
                                             <li class="page-item <?php if ($i == $resPage) echo 'active'; ?>">
-                                                <a class="page-link" href="?res_page=<?php echo $i; ?><?php if ($userPage > 1) echo '&user_page=' . $userPage; ?>"> <?php echo $i; ?> </a>
+                                                <a class="page-link"
+                                                    href="?res_page=<?php echo $i; ?><?php if ($userPage > 1) echo '&user_page=' . $userPage; ?>">
+                                                    <?php echo $i; ?> </a>
                                             </li>
                                         <?php endfor; ?>
                                     </ul>
@@ -324,12 +361,18 @@ if (isset($_SESSION['user_id'])) {
                                             <?php foreach ($userPaginated as $u):
                                                 $avatarUrl = !empty($u['avatar']) ? '/WRS/workstation-reservation-system/uploads/avatars/' . $u['avatar'] : 'https://ui-avatars.com/api/?name=' . urlencode($u['username']) . '&background=185a9d&color=fff&size=40';
                                             ?>
-                                            <tr>
-                                                <td><img src="<?php echo $avatarUrl; ?>" alt="Profile" class="rounded-circle" style="width:28px;height:28px;object-fit:cover;"></td>
-                                                <td style="font-size:0.95em;"><?php echo htmlspecialchars($u['username']); ?></td>
-                                                <td><span class="badge bg-<?php echo $u['role'] === 'admin' ? 'primary' : 'secondary'; ?>"> <?php echo ucfirst($u['role']); ?> </span></td>
-                                                <td style="font-size:0.95em;"><?php echo date('M d, Y', strtotime($u['created_at'])); ?></td>
-                                            </tr>
+                                                <tr>
+                                                    <td><img src="<?php echo $avatarUrl; ?>" alt="Profile"
+                                                            class="rounded-circle"
+                                                            style="width:28px;height:28px;object-fit:cover;"></td>
+                                                    <td style="font-size:0.95em;">
+                                                        <?php echo htmlspecialchars($u['username']); ?></td>
+                                                    <td><span
+                                                            class="badge bg-<?php echo $u['role'] === 'admin' ? 'primary' : 'secondary'; ?>">
+                                                            <?php echo ucfirst($u['role']); ?> </span></td>
+                                                    <td style="font-size:0.95em;">
+                                                        <?php echo date('M d, Y', strtotime($u['created_at'])); ?></td>
+                                                </tr>
                                             <?php endforeach; ?>
                                         </tbody>
                                     </table>
@@ -339,7 +382,9 @@ if (isset($_SESSION['user_id'])) {
                                     <ul class="pagination pagination-sm justify-content-center mb-0">
                                         <?php for ($i = 1; $i <= $userPages; $i++): ?>
                                             <li class="page-item <?php if ($i == $userPage) echo 'active'; ?>">
-                                                <a class="page-link" href="?user_page=<?php echo $i; ?><?php if ($resPage > 1) echo '&res_page=' . $resPage; ?>"> <?php echo $i; ?> </a>
+                                                <a class="page-link"
+                                                    href="?user_page=<?php echo $i; ?><?php if ($resPage > 1) echo '&res_page=' . $resPage; ?>">
+                                                    <?php echo $i; ?> </a>
                                             </li>
                                         <?php endfor; ?>
                                     </ul>
@@ -373,35 +418,49 @@ if (isset($_SESSION['user_id'])) {
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { display: false },
-                    tooltip: { enabled: true }
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: true
+                    }
                 },
                 scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
                 }
             }
         });
     </script>
     <style>
-.dashboard-main .card {
-    border-radius: 1.1rem !important;
-    box-shadow: 0 2px 16px rgba(79,140,255,0.10);
-    transition: box-shadow 0.2s, transform 0.2s;
-    padding-bottom: 0.5rem;
-}
-.dashboard-main .card:hover {
-    box-shadow: 0 6px 32px rgba(79,140,255,0.18);
-    transform: translateY(-2px) scale(1.015);
-}
-.dashboard-main .card .card-body {
-    padding: 2rem 1.5rem 1.5rem 1.5rem;
-}
-.dashboard-main .row.g-4 {
-    margin-bottom: 2.5rem !important;
-}
-.dashboard-main .welcome-banner {
-    margin-bottom: 2.5rem !important;
-}
-</style>
+        .dashboard-main .card {
+            border-radius: 1.1rem !important;
+            box-shadow: 0 2px 16px rgba(79, 140, 255, 0.10);
+            transition: box-shadow 0.2s, transform 0.2s;
+            padding-bottom: 0.5rem;
+        }
+
+        .dashboard-main .card:hover {
+            box-shadow: 0 6px 32px rgba(79, 140, 255, 0.18);
+            transform: translateY(-2px) scale(1.015);
+        }
+
+        .dashboard-main .card .card-body {
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
+        }
+
+        .dashboard-main .row.g-4 {
+            margin-bottom: 2.5rem !important;
+        }
+
+        .dashboard-main .welcome-banner {
+            margin-bottom: 2.5rem !important;
+        }
+    </style>
 </body>
+
 </html>

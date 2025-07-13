@@ -1,6 +1,11 @@
 <?php
 // Usage: Run this script from the browser or CLI to create an admin user.
-require_once '../config/database.php';
+// Only super admins can create admin users through this script.
+
+// Fix path for both CLI and web execution
+$scriptDir = dirname(__FILE__);
+$configPath = $scriptDir . '/../config/database.php';
+require_once $configPath;
 
 function prompt($prompt) {
     if (php_sapi_name() === 'cli') {
@@ -35,18 +40,44 @@ if (php_sapi_name() === 'cli') {
 }
 
 if (!empty($username) && !empty($email) && !empty($password)) {
+    // Check if super admin exists (for CLI mode)
+    if (php_sapi_name() === 'cli') {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE role = 'super_admin'");
+        $stmt->execute();
+        $superAdminCount = $stmt->fetchColumn();
+        
+        if ($superAdminCount === 0) {
+            echo "Error: No super admin exists. Please create a super admin first using create_super_admin.php\n";
+            exit();
+        }
+    }
+    
     $hashed = password_hash($password, PASSWORD_DEFAULT);
-    $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, 'admin')");
+    $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, 'super_admin')");
     try {
         $stmt->execute([$username, $email, $hashed]);
-        echo "<p>Admin user created successfully!</p>";
+        if (php_sapi_name() === 'cli') {
+            echo "Admin user created successfully!\n";
+        } else {
+            echo "<p>Admin user created successfully!</p>";
+        }
     } catch (PDOException $e) {
         if ($e->getCode() == 23000) {
-            echo "<p style='color:red'>Username or email already exists.</p>";
+            $errorMsg = "Username or email already exists.";
         } else {
-            echo "<p style='color:red'>Error: " . htmlspecialchars($e->getMessage()) . "</p>";
+            $errorMsg = "Error: " . htmlspecialchars($e->getMessage());
+        }
+        
+        if (php_sapi_name() === 'cli') {
+            echo "Error: $errorMsg\n";
+        } else {
+            echo "<p style='color:red'>$errorMsg</p>";
         }
     }
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    echo "<p style='color:red'>All fields are required.</p>";
+    if (php_sapi_name() === 'cli') {
+        echo "Error: All fields are required.\n";
+    } else {
+        echo "<p style='color:red'>All fields are required.</p>";
+    }
 } 

@@ -159,7 +159,7 @@ body[data-theme='dark'] .card-header {
 }
 .table thead th {
     background: var(--banner-bg, #f5faff);
-    color: var(--primary, #185a9d);
+    color: var(--banner-text, #e0eafc);
     border-bottom: 2px solid #e0eafc;
 }
 body[data-theme='dark'] .table thead th {

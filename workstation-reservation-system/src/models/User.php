@@ -16,6 +16,22 @@ class User {
         $stmt->bindParam(':role', $data['role']);
         return $stmt->execute();
     }
+    
+    public function isSuperAdmin($userId) {
+        $stmt = $this->db->prepare("SELECT role FROM " . $this->table . " WHERE id = :id");
+        $stmt->bindParam(':id', $userId);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $user && $user['role'] === 'super_admin';
+    }
+    
+    public function isAdmin($userId) {
+        $stmt = $this->db->prepare("SELECT role FROM " . $this->table . " WHERE id = :id");
+        $stmt->bindParam(':id', $userId);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $user && ($user['role'] === 'admin' || $user['role'] === 'super_admin');
+    }
 
     public function validate($username, $password) {
         $stmt = $this->db->prepare("SELECT * FROM " . $this->table . " WHERE username = :username");
