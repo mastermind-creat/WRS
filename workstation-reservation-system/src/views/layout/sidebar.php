@@ -104,7 +104,7 @@ function isActiveSidebar($path) {
 </aside>
 
 <!-- Sidebar Toggle Button (visible on small screens) -->
-<button class="btn btn-primary d-lg-none position-fixed" style="top: 1rem; left: 1rem; z-index: 2000;" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebarOffcanvas" aria-controls="adminSidebarOffcanvas">
+<button class="sidebar-fab d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebarOffcanvas" aria-controls="adminSidebarOffcanvas" title="Open Sidebar">
     <i class="bi bi-list"></i>
 </button>
 

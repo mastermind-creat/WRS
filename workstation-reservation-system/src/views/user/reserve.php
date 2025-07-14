@@ -151,161 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['workstation_id'])) {
     <title>Reserve Workstation</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <style>
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
-        }
-        .lab-container {
-            position: relative;
-            width: 650px;
-            height: 550px;
-            background: linear-gradient(135deg,rgb(83, 131, 243) 0%,rgb(1, 10, 51) 100%);
-            border: 2px solid #eee;
-            border-radius: 1rem;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-            overflow: hidden;
-            transition: box-shadow 0.3s;
-        }
-        .lab-container:hover {
-            box-shadow: 0 16px 48px 0 rgba(31, 38, 135, 0.25);
-        }
-        .desk {
-            position: absolute;
-            background: rgba(255,255,255,0.15);
-            display: grid;
-            grid-template-columns: repeat(4, 20px);
-            grid-gap: 5px;
-            padding: 5px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(67, 233, 123, 0.08);
-            animation: fadeInDesk 0.8s;
-        }
-        @keyframes fadeInDesk {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .computer {
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            transition: transform 0.3s, box-shadow 0.3s, background 0.3s, border 0.3s;
-            border: 2px solid transparent;
-            box-shadow: 0 2px 8px rgba(67, 233, 123, 0.12);
-            cursor: pointer;
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-            color: #fff;
-            animation: popIn 0.6s;
-        }
-        @keyframes popIn {
-            0% { transform: scale(0.7); opacity: 0; }
-            80% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(1); }
-        }
-        .computer.idle {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-            color: #fff;
-        }
-        .computer.busy {
-            background: linear-gradient(135deg, #b2bec3 0%, #636e72 100%);
-            color: #fff;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-        .computer.selected {
-            border: 2px solid #ff9800;
-            box-shadow: 0 0 16px #ff9800, 0 2px 8px rgba(67, 233, 123, 0.12);
-            animation: pulseSelected 1s infinite alternate;
-        }
-        @keyframes pulseSelected {
-            from { box-shadow: 0 0 16px #ff9800, 0 2px 8px rgba(67, 233, 123, 0.12); }
-            to { box-shadow: 0 0 32px #ff9800, 0 2px 16px rgba(67, 233, 123, 0.18); }
-        }
-        .computer:hover.idle {
-            transform: scale(1.18) rotate(-3deg);
-            box-shadow: 0 0 12px #38f9d7, 0 2px 8px rgba(67, 233, 123, 0.18);
-            background: linear-gradient(135deg, #38f9d7 0%, #43e97b 100%);
-        }
-        .circle {
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.25);
-            left: 300px;
-            top: 20px;
-            box-shadow: 0 2px 8px rgba(67, 233, 123, 0.08);
-        }
-        .rectangle {
-            position: absolute;
-            width: 80px;
-            height: 40px;
-            background: rgba(255,255,255,0.18);
-            left: 400px;
-            top: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(67, 233, 123, 0.08);
-        }
-        .divider {
-            position: absolute;
-            width: 5px;
-            height: 60px;
-            background: rgba(255,255,255,0.18);
-            right: 10px;
-            top: 20px;
-            border-radius: 2px;
-        }
-        .desk.left1 { top: 10px; left: 10px; }
-        .desk.left2 { top: 90px; left: 10px; }
-        .desk.left3 { top: 170px; left: 10px; }
-        .desk.left4 { top: 250px; left: 10px; }
-        .desk.left5 { top: 330px; left: 10px; }
-        .desk.left6 { top: 410px; left: 10px; }
-        .desk.right1 { top: 100px; left: 530px; grid-template-columns: repeat(2, 20px); }
-        .desk.right2 { top: 190px; left: 530px; grid-template-columns: repeat(2, 20px); }
-        .desk.right3 { top: 280px; left: 530px; grid-template-columns: repeat(2, 20px); }
-        .desk.right-bottom { top: 430px; left: 480px; }
-        @media (max-width: 1200px) {
-            .lab-container { width: 100%; max-width: 98vw; }
-        }
-        @media (max-width: 991.98px) {
-            .lab-container { margin-bottom: 2rem; }
-        }
-        /* Popover styling */
-        .popover {
-            max-width: 300px;
-        }
-        .popover-body {
-            padding: 0.5rem 0.75rem;
-        }
-        /* Status item styling */
-        .status-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0.2rem;
-            width: 60px;
-        }
-        .status-badge {
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 2px;
-        }
-        .status-text {
-            font-size: 0.65rem;
-            line-height: 1;
-            text-align: center;
-            word-break: break-word;
-            max-width: 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="/WRS/workstation-reservation-system/src/public/css/user.css">
 </head>
 <body>
 <?php include __DIR__ . '/../layout/navbar.php'; ?>
@@ -421,15 +267,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['workstation_id'])) {
             endInput.value = '';
         }
     }
-    // Set start time to current date/time (rounded to next hour)
+    // Server UTC time as ISO string
+    var serverNowUTC = "<?php echo gmdate('Y-m-d\TH:i:s'); ?>";
     window.addEventListener('DOMContentLoaded', function() {
         const startInput = document.getElementById('start_time');
         if (startInput) {
-            const now = new Date();
-            now.setMinutes(0, 0, 0);
-            now.setHours(now.getMinutes() > 0 ? now.getHours() + 1 : now.getHours());
+            // Use server UTC time as base
+            let now = new Date(serverNowUTC + 'Z');
+            // Format as yyyy-MM-ddTHH:mm (to the minute, not rounded)
             const pad = n => n.toString().padStart(2, '0');
-            const local = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:00`;
+            const local = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
             startInput.value = local;
             updateEndTime();
             refreshLabStatus();

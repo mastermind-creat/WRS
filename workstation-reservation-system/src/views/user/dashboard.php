@@ -13,113 +13,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'user') {
     <title>User Dashboard - Workstation Reservation System</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <style>
-        :root {
-            --main-bg: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
-            --card-bg: #fff;
-            --text-color: #222;
-            --banner-bg: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
-            --banner-text: #fff;
-            --primary: #4f8cff;
-            --success: #43cea2;
-            --warning: #ffd200;
-        }
-        body[data-theme='dark'] {
-            --main-bg: linear-gradient(135deg, #232526 0%, #414345 100%);
-            --card-bg: #23272f;
-            --text-color: #f1f1f1;
-            --banner-bg: linear-gradient(135deg, #232526 0%, #414345 100%);
-            --banner-text: #fff;
-            --primary: #90caf9;
-            --success: #43cea2;
-            --warning: #ffd200;
-        }
-        body {
-            min-height: 100vh;
-            background: var(--main-bg);
-            color: var(--text-color);
-        }
-        .dashboard-main {
-            background: var(--card-bg);
-            border-radius: 1rem;
-            box-shadow: 0 2px 16px rgba(79,140,255,0.08);
-            padding: 2rem 2rem 1rem 2rem;
-            width: 100vw;
-            max-width: 100vw;
-            margin: 0;
-            min-height: 100vh;
-            transition: background 0.3s, color 0.3s;
-        }
-        .card-action {
-            transition: transform 0.15s;
-        }
-        .card-action:hover {
-            transform: translateY(-5px) scale(1.03);
-            box-shadow: 0 4px 24px rgba(79,140,255,0.12);
-        }
-        .fade-in {
-            opacity: 0;
-            transform: translateY(30px);
-            animation: fadeInUp 1s ease-out forwards;
-        }
-        .slide-in {
-            opacity: 0;
-            transform: translateX(-40px);
-            animation: slideIn 1s 0.2s cubic-bezier(.4,2,.6,1) forwards;
-        }
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: none;
-            }
-        }
-        @keyframes slideIn {
-            to {
-                opacity: 1;
-                transform: none;
-            }
-        }
-        .welcome-banner {
-            background: var(--banner-bg);
-            color: var(--banner-text);
-            border-radius: 1rem;
-            box-shadow: 0 2px 16px rgba(67,233,123,0.08);
-            padding: 1.5rem 2rem;
-            margin-bottom: 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            animation: fadeInUp 1s;
-        }
-        .welcome-banner .date {
-            font-size: 1.1em;
-            font-weight: 500;
-            opacity: 0.85;
-        }
-        .darkmode-toggle {
-            background: var(--banner-bg);
-            color: var(--banner-text);
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3em;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-            margin-left: 1rem;
-            transition: background 0.3s, color 0.3s;
-        }
-        @media (max-width: 991.98px) {
-            .dashboard-main { padding: 1rem; max-width: 100vw; }
-            .welcome-banner { flex-direction: column; gap: 1rem; text-align: center; }
-        }
-        @media (max-width: 767.98px) {
-            .dashboard-main { padding: 0.5rem; border-radius: 0; }
-        }
-    </style>
+    <link rel="stylesheet" href="/WRS/workstation-reservation-system/src/public/css/user.css">
 </head>
 <body>
 <?php include __DIR__ . '/../layout/navbar.php'; ?>
@@ -180,6 +74,13 @@ foreach ($reservations as $r) {
         $activeReservation = $r;
         break;
     }
+}
+// Helper: get the correct countdown start time (approved_at or start_time)
+function getCountdownStart($reservation) {
+    if (!empty($reservation['approved_at'])) {
+        return $reservation['approved_at'];
+    }
+    return $reservation['start_time'];
 }
 ?>
     <div class="dashboard-main fade-in">
@@ -291,7 +192,7 @@ foreach ($reservations as $r) {
                 </a>
             </div>
         </div>
-        <?php if ($activeReservation && !empty($activeReservation['approved_at'])): ?>
+        <?php if ($activeReservation): ?>
             <div class="alert alert-info d-flex align-items-center" id="countdown-alert">
                 <i class="bi bi-clock-history me-2"></i>
                 <div>
@@ -434,44 +335,62 @@ foreach ($reservations as $r) {
             }
         }
     </script>
-    <?php if ($activeReservation && !empty($activeReservation['approved_at'])): ?>
-        <script>
-        (function() {
-            // Set start and end time from PHP
-            var startTime = new Date("<?php echo $activeReservation['approved_at']; ?>").getTime();
-            var endTime = new Date("<?php echo $activeReservation['end_time']; ?>").getTime();
-            var notified = false;
-            function updateCountdown() {
-                var now = new Date().getTime();
-                if (now < startTime) {
-                    document.getElementById('countdown-timer').textContent = 'Waiting for reservation to start...';
-                    return;
-                }
-                var distance = endTime - now;
-                if (distance < 0) {
-                    document.getElementById('countdown-timer').textContent = 'Time is up!';
-                    document.getElementById('countdown-alert').classList.remove('alert-info');
-                    document.getElementById('countdown-alert').classList.add('alert-danger');
-                    return;
-                }
-                var hours = Math.floor((distance / (1000 * 60 * 60)));
-                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                document.getElementById('countdown-timer').textContent =
-                    (hours > 0 ? hours + 'h ' : '') + minutes + 'm ' + seconds + 's';
-                // Notify at 10 minutes left
-                if (!notified && distance <= 10 * 60 * 1000 && distance > 0) {
-                    notified = true;
-                    var alert = document.getElementById('countdown-alert');
-                    alert.classList.remove('alert-info');
-                    alert.classList.add('alert-warning');
-                    alert.innerHTML += '<div class="mt-2 fw-bold text-danger">Only 10 minutes left in your reservation!</div>';
-                }
+    <?php if ($activeReservation): ?>
+<script>
+(function() {
+    // Output all times in UTC ISO format
+    var startTime = new Date("<?php echo gmdate('Y-m-d\TH:i:s\Z', strtotime(getCountdownStart($activeReservation))); ?>").getTime();
+    var endTime = new Date("<?php echo gmdate('Y-m-d\TH:i:s\Z', strtotime($activeReservation['end_time'])); ?>").getTime();
+    // Get server's current UTC time as base
+    var serverNow = new Date("<?php echo gmdate('Y-m-d\TH:i:s\Z'); ?>").getTime();
+    var clientNow = new Date().getTime();
+    // Calculate offset between server and client
+    var offset = serverNow - clientNow;
+    var notified = false;
+    var timerInterval = null;
+    function updateCountdown() {
+        // Use server time as base, incremented by seconds elapsed
+        var now = new Date().getTime() + offset;
+        var countdownTimer = document.getElementById('countdown-timer');
+        var countdownAlert = document.getElementById('countdown-alert');
+        if (!countdownTimer || !countdownAlert) return;
+        if (now < startTime) {
+            countdownTimer.textContent = 'Waiting for reservation to start...';
+            countdownAlert.classList.remove('alert-danger', 'alert-warning');
+            countdownAlert.classList.add('alert-info');
+            return;
+        }
+        var distance = endTime - now;
+        if (distance <= 0) {
+            countdownTimer.textContent = "Time is up!";
+            countdownAlert.classList.remove('alert-info', 'alert-warning');
+            countdownAlert.classList.add('alert-danger');
+            clearInterval(timerInterval);
+            return;
+        }
+        var hours = Math.floor((distance / (1000 * 60 * 60)));
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        countdownTimer.textContent =
+            (hours > 0 ? hours + 'h ' : '') + minutes + 'm ' + seconds + 's';
+        // Notify at 10 minutes left
+        if (!notified && distance <= 10 * 60 * 1000 && distance > 0) {
+            notified = true;
+            countdownAlert.classList.remove('alert-info');
+            countdownAlert.classList.add('alert-warning');
+            if (!document.getElementById('ten-min-warning')) {
+                var warn = document.createElement('div');
+                warn.className = 'mt-2 fw-bold text-danger';
+                warn.id = 'ten-min-warning';
+                warn.textContent = 'Only 10 minutes left in your reservation!';
+                countdownAlert.appendChild(warn);
             }
-            updateCountdown();
-            setInterval(updateCountdown, 1000);
-        })();
-        </script>
-    <?php endif; ?>
+        }
+    }
+    updateCountdown();
+    timerInterval = setInterval(updateCountdown, 1000);
+})();
+</script>
+<?php endif; ?>
 </body>
 </html>

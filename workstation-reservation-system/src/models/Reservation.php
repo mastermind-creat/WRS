@@ -32,10 +32,17 @@ class Reservation {
     }
 
     public function cancelReservation($reservationId) {
-        $query = "DELETE FROM reservations WHERE id = :reservation_id";
+        // Set reservation status to canceled
+        $query = "UPDATE reservations SET status = 'canceled' WHERE id = :reservation_id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':reservation_id', $reservationId);
-        return $stmt->execute();
+        $stmt->execute();
+        // Optionally, set workstation to idle if this was an approved reservation
+        $wsQuery = "UPDATE workstations w JOIN reservations r ON w.id = r.workstation_id SET w.status = 'idle' WHERE r.id = :reservation_id AND r.status = 'canceled'";
+        $wsStmt = $this->db->prepare($wsQuery);
+        $wsStmt->bindParam(':reservation_id', $reservationId);
+        $wsStmt->execute();
+        return true;
     }
 
     public function approveReservation($reservationId) {
