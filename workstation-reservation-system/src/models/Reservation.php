@@ -17,10 +17,21 @@ class Reservation {
         return $stmt->execute();
     }
 
-    public function getReservationsByUser($userId) {
-        $query = "SELECT * FROM reservations WHERE user_id = :user_id";
+    public function getReservationsByUser($userId, $limit = null, $offset = null) {
+        $query = "SELECT * FROM reservations WHERE user_id = :user_id ORDER BY start_time DESC";
+        if ($limit !== null && $offset !== null) {
+            $query .= " LIMIT :limit OFFSET :offset";
+        } elseif ($limit !== null) {
+            $query .= " LIMIT :limit";
+        }
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':user_id', $userId);
+        if ($limit !== null) {
+            $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        }
+        if ($offset !== null) {
+            $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        }
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -32,17 +43,20 @@ class Reservation {
     }
 
     public function cancelReservation($reservationId) {
-        // Set reservation status to canceled
-        $query = "UPDATE reservations SET status = 'canceled' WHERE id = :reservation_id";
-        $stmt = $this->db->prepare($query);
+        // Get the reservation to check status and workstation
+        $stmt = $this->db->prepare("SELECT workstation_id, status FROM reservations WHERE id = :reservation_id");
         $stmt->bindParam(':reservation_id', $reservationId);
         $stmt->execute();
-        // Optionally, set workstation to idle if this was an approved reservation
-        $wsQuery = "UPDATE workstations w JOIN reservations r ON w.id = r.workstation_id SET w.status = 'idle' WHERE r.id = :reservation_id AND r.status = 'canceled'";
-        $wsStmt = $this->db->prepare($wsQuery);
-        $wsStmt->bindParam(':reservation_id', $reservationId);
-        $wsStmt->execute();
-        return true;
+        $reservation = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$reservation || $reservation['status'] !== 'pending') {
+            // Only allow deletion if pending
+            return false;
+        }
+        // Delete the reservation
+        $query = "DELETE FROM reservations WHERE id = :reservation_id";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':reservation_id', $reservationId);
+        return $stmt->execute();
     }
 
     public function approveReservation($reservationId) {

@@ -23,8 +23,14 @@ require_once '../../models/User.php';
 require_once '../../models/Reservation.php';
 $userModel = new User($pdo);
 $reservationModel = new Reservation($pdo);
+// Pagination for reservation history
+$perPage = 8;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0 ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $perPage;
+$totalReservations = count($reservationModel->getReservationsByUser($_SESSION['user_id']));
+$totalPages = ceil($totalReservations / $perPage);
+$reservations = $reservationModel->getReservationsByUser($_SESSION['user_id'], $perPage, $offset);
 $user = $userModel->getUserById($_SESSION['user_id']);
-$reservations = $reservationModel->getReservationsByUser($_SESSION['user_id']);
 $resCount = count($reservations);
 // Add this block to generate chart data for the last 7 days
 $labels = [];
@@ -253,6 +259,25 @@ function getCountdownStart($reservation) {
                 </div>
             </div>
         </div>
+        <?php if ($totalPages > 1): ?>
+        <div class="mt-4">
+            <nav aria-label="Reservation pagination">
+                <ul class="pagination justify-content-center mt-3">
+                    <li class="page-item<?php if ($page <= 1) echo ' disabled'; ?>">
+                        <a class="page-link" href="?page=<?php echo $page - 1; ?>" tabindex="-1">Previous</a>
+                    </li>
+                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                        <li class="page-item<?php if ($i == $page) echo ' active'; ?>">
+                            <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                        </li>
+                    <?php endfor; ?>
+                    <li class="page-item<?php if ($page >= $totalPages) echo ' disabled'; ?>">
+                        <a class="page-link" href="?page=<?php echo $page + 1; ?>">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <?php endif; ?>
         <div class="mt-4">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">

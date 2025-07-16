@@ -8,7 +8,14 @@ require_once '../../config/database.php';
 require_once '../../models/Reservation.php';
 
 $reservationModel = new Reservation($pdo);
-$reservations = $reservationModel->getReservationsByUser($_SESSION['user_id']);
+// Pagination setup
+$perPage = 10;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0 ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $perPage;
+// Get total count for pagination
+$totalReservations = count($reservationModel->getReservationsByUser($_SESSION['user_id']));
+$totalPages = ceil($totalReservations / $perPage);
+$reservations = $reservationModel->getReservationsByUser($_SESSION['user_id'], $perPage, $offset);
 $message = '';
 $now = date('Y-m-d H:i:s');
 // Helper to classify reservation
@@ -18,16 +25,30 @@ function getReservationState($r, $now) {
     if ($r['start_time'] <= $now && $r['end_time'] > $now) return 'active';
     return 'unknown';
 }
-
 // Handle cancel reservation
 if (isset($_GET['cancel']) && is_numeric($_GET['cancel'])) {
     $reservationId = (int)$_GET['cancel'];
-    $reservationModel->cancelReservation($reservationId);
-    header('Location: my_reservations.php?msg=cancelled');
-    exit();
+    // Only allow cancel if reservation is pending
+    $reservation = null;
+    foreach ($reservations as $r) {
+        if ($r['id'] == $reservationId) {
+            $reservation = $r;
+            break;
+        }
+    }
+    if ($reservation && $reservation['status'] === 'pending') {
+        $reservationModel->cancelReservation($reservationId);
+        header('Location: my_reservations.php?msg=cancelled');
+        exit();
+    } else {
+        header('Location: my_reservations.php?msg=not_allowed');
+        exit();
+    }
 }
 if (isset($_GET['msg']) && $_GET['msg'] === 'cancelled') {
     $message = 'Reservation cancelled.';
+} elseif (isset($_GET['msg']) && $_GET['msg'] === 'not_allowed') {
+    $message = 'You can only cancel pending reservations.';
 }
 ?>
 <!DOCTYPE html>
@@ -95,6 +116,23 @@ if (isset($_GET['msg']) && $_GET['msg'] === 'cancelled') {
                 </tbody>
             </table>
         </div>
+        <?php if ($totalPages > 1): ?>
+        <nav aria-label="Reservation pagination">
+            <ul class="pagination justify-content-center mt-3">
+                <li class="page-item<?php if ($page <= 1) echo ' disabled'; ?>">
+                    <a class="page-link" href="?page=<?php echo $page - 1; ?>" tabindex="-1">Previous</a>
+                </li>
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <li class="page-item<?php if ($i == $page) echo ' active'; ?>">
+                        <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                    </li>
+                <?php endfor; ?>
+                <li class="page-item<?php if ($page >= $totalPages) echo ' disabled'; ?>">
+                    <a class="page-link" href="?page=<?php echo $page + 1; ?>">Next</a>
+                </li>
+            </ul>
+        </nav>
+        <?php endif; ?>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>

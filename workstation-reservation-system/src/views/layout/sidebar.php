@@ -102,6 +102,7 @@ function isActiveSidebar($path) {
     <hr>
     <div class="text-white-50 small">&copy; <?php echo date('Y'); ?> Jitume Lab</div>
 </aside>
+<div class="sidebar-overlay"></div>
 
 <!-- Sidebar Toggle Button (visible on small screens) -->
 <button class="sidebar-fab d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebarOffcanvas" aria-controls="adminSidebarOffcanvas" title="Open Sidebar">
