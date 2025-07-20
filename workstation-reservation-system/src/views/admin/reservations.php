@@ -15,7 +15,14 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-$reservations = $reservationController->getAdminReservations();
+// Pagination setup
+$perPage = 10;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0 ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $perPage;
+$totalReservations = count($reservationController->getAdminReservations());
+$totalPages = ceil($totalReservations / $perPage);
+$reservations = $reservationController->getAdminReservations($perPage, $offset);
+
 $workstations = Workstation::getAllWorkstations($pdo);
 
 // Date filter logic
@@ -45,7 +52,7 @@ usort($reservations, function($a, $b) {
             background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
         }
         .dashboard-main {
-            background: #f8f9fa;
+            /* background: #f8f9fa; */
             border-radius: 1rem;
             box-shadow: 0 2px 16px rgba(79,140,255,0.08);
             padding: 2rem 2rem 1rem 2rem;
@@ -133,7 +140,7 @@ usort($reservations, function($a, $b) {
             <div class="col-lg-3 p-0 sidebar">
                 <?php include __DIR__ . '/../layout/sidebar.php'; ?>
             </div>
-            <main class="col-lg-9 mt-4 dashboard-main fade-in">
+            <main class="col-lg-12 dashboard-main fade-in">
                 <div class="row mb-4">
                     <div class="col-12 text-center">
                         <h1 class="mb-2"><i class="bi bi-list-check"></i> Manage Reservations</h1>
@@ -279,6 +286,23 @@ usort($reservations, function($a, $b) {
                         </div>
                     </div>
                 </div>
+                <?php if ($totalPages > 1): ?>
+                <nav aria-label="Reservations pagination">
+                    <ul class="pagination justify-content-center mt-3">
+                        <li class="page-item<?php if ($page <= 1) echo ' disabled'; ?>">
+                            <a class="page-link" href="?page=<?php echo $page - 1; ?>" tabindex="-1">Previous</a>
+                        </li>
+                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <li class="page-item<?php if ($i == $page) echo ' active'; ?>">
+                                <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                            </li>
+                        <?php endfor; ?>
+                        <li class="page-item<?php if ($page >= $totalPages) echo ' disabled'; ?>">
+                            <a class="page-link" href="?page=<?php echo $page + 1; ?>">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+                <?php endif; ?>
             </main>
         </div>
     </div>

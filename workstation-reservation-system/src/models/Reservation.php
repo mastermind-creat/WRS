@@ -36,9 +36,21 @@ class Reservation {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getAllReservations() {
-        $query = "SELECT * FROM reservations";
-        $stmt = $this->db->query($query);
+    public function getAllReservations($limit = null, $offset = null) {
+        $query = "SELECT * FROM reservations ORDER BY start_time DESC";
+        if ($limit !== null && $offset !== null) {
+            $query .= " LIMIT :limit OFFSET :offset";
+        } elseif ($limit !== null) {
+            $query .= " LIMIT :limit";
+        }
+        $stmt = $this->db->prepare($query);
+        if ($limit !== null) {
+            $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        }
+        if ($offset !== null) {
+            $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        }
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

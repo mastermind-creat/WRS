@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'];
 
     if ($authController->login($email, $password)) {
-        header("Location: /WRS/workstation-reservation-system/src/views/user/dashboard.php");
+        header("Location: /WRS/workstation-reservation-system/src/views/auth/login.php?login=success");
         exit();
     } else {
         $error = 'Invalid email or password.';
@@ -39,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/workstation-reservation-system/src/public/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-light">
 <?php include __DIR__ . '/../layout/navbar.php'; ?>
@@ -49,7 +50,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <h2 class="mt-2">Login</h2>
             </div>
             <?php if ($error): ?>
-                <div class="alert alert-danger"><?php echo $error; ?></div>
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Login Failed',
+                        text: '<?php echo addslashes($error); ?>',
+                        confirmButtonColor: '#3085d6'
+                    });
+                });
+                </script>
             <?php endif; ?>
             <form method="POST" action="">
                 <div class="mb-3">
@@ -65,5 +75,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <p class="mt-3 text-center">Don't have an account? <a href="/WRS/workstation-reservation-system/src/views/auth/register.php">Register here</a></p>
         </div>
     </div>
+    <?php if (isset($_GET['login']) && $_GET['login'] === 'success'): ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: 'success',
+            title: 'Login Successful',
+            text: 'Welcome back!',
+            confirmButtonColor: '#3085d6'
+        }).then(function() {
+            window.location.href = '/WRS/workstation-reservation-system/src/views/user/dashboard.php';
+        });
+    });
+    </script>
+    <?php endif; ?>
 </body>
 </html>

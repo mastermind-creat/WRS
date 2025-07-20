@@ -495,6 +495,19 @@ if (isset($_SESSION['user_id'])) {
             }
         });
     </script>
+    <?php if (isset($_SESSION['login_success'])): ?>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        icon: 'success',
+        title: 'Login Successful',
+        text: 'Welcome back!',
+        confirmButtonColor: '#3085d6'
+    });
+});
+</script>
+<?php unset($_SESSION['login_success']); endif; ?>
     <style>
         .dashboard-main .card {
             border-radius: 1.1rem !important;

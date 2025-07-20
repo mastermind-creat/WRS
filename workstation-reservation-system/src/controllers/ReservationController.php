@@ -32,8 +32,8 @@ class ReservationController {
         return $this->reservationModel->getReservationsByUser($userId);
     }
 
-    public function getAdminReservations() {
-        return $this->reservationModel->getAllReservations();
+    public function getAdminReservations($limit = null, $offset = null) {
+        return $this->reservationModel->getAllReservations($limit, $offset);
     }
 
     public function approveReservation($reservationId) {

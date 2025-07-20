@@ -40,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../../public/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-light">
 <?php include __DIR__ . '/../layout/navbar.php'; ?>
@@ -51,8 +52,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
             <?php
             if (isset($_SESSION['error'])) {
-                echo "<div class='alert alert-danger'>" . $_SESSION['error'] . "</div>";
+                echo "<script>document.addEventListener('DOMContentLoaded', function() { Swal.fire({ icon: 'error', title: 'Registration Failed', text: '" . addslashes($_SESSION['error']) . "', confirmButtonColor: '#3085d6' }); });</script>";
                 unset($_SESSION['error']);
+            }
+            if (isset($_SESSION['message'])) {
+                echo "<script>document.addEventListener('DOMContentLoaded', function() { Swal.fire({ icon: 'success', title: 'Registration Successful', text: '" . addslashes($_SESSION['message']) . "', confirmButtonColor: '#3085d6' }).then(function() { window.location.href = '/WRS/workstation-reservation-system/src/views/auth/login.php'; }); });</script>";
+                unset($_SESSION['message']);
             }
             ?>
             <form action="register.php" method="POST">

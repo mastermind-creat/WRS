@@ -21,6 +21,7 @@ class AuthController {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['role'] = $user['role'];
+            $_SESSION['login_success'] = true;
             if ($user['role'] === 'admin' || $user['role'] === 'super_admin') {
                 header('Location: /WRS/workstation-reservation-system/src/views/admin/dashboard.php');
             } else {
